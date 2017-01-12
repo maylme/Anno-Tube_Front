@@ -1,0 +1,40 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="annotube-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --primary-color : darkred;
+      }
+    </style>
+
+    <paper-toolbar>
+      <paper-icon-button icon="menu"></paper-icon-button>
+      <span class="title">Anno'Tubes</span>
+      <paper-icon-button icon="refresh"></paper-icon-button>
+      <paper-icon-button icon="add">+</paper-icon-button>
+    </paper-toolbar>
+
+
+    <h2>Hello [[prop1]]</h2>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'annotube-app',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'annotube-app',
+        },
+      },
+
+    });
+  </script>
+</dom-module>
