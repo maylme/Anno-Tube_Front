@@ -20,9 +20,76 @@
         }
       };
 
-    </style>
+    /*-------------------------------------*/
     
-    <!--paper-drawer-panel>
+    .cf:before, .cf:after{
+      content:"";
+      display:table;
+    }
+    
+    .cf:after{
+      clear:both;
+    }
+
+    .cf{
+      zoom:1;
+    }
+
+    /*-------------------------------------*/	
+    
+    .form-wrapper {
+        width: 40%;
+        min-width: 300px;
+        margin: 5% auto 1% auto;
+    }
+    
+    .form-wrapper input {
+        width: 74%;
+        min-width: 30%;
+        padding: 10px 1%;
+        float: left;
+        font: bold 16px 'lucida sans', 'trebuchet MS', 'Tahoma';
+        border: 0;
+        background: #eee;     
+    }
+    
+    .form-wrapper input:focus {
+        outline: 1px solid gray;
+        background: #eee;
+    }   
+    
+    .form-wrapper button {
+		    overflow: visible;
+        position: relative;
+        float: right;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        width: 24%;
+        height: 40px;
+        font: bold 16px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+        color: #eee;
+        text-transform: uppercase;
+        background: darkred;
+    }
+
+    .form-wrapper button:hover{		
+        background: #c00;
+    }	
+      
+    .form-wrapper button:active,
+    .form-wrapper button:focus{   
+        background: #900;    
+    } 
+    
+    .form-wrapper button::-moz-focus-inner {
+        border: 0;
+        padding: 0;
+    }
+
+    </style>
+
+<!--paper-drawer-panel>
       <div drawer> Drawer panel... </div>
       <div main> Main panel... </div>
     </paper-drawer-panel>
@@ -33,42 +100,65 @@
       <paper-icon-button icon="account-circle"></paper-icon-button>
     </paper-toolbar-->
 
-   <paper-drawer-panel>
-    <paper-header-panel drawer>
-      <paper-toolbar>
-        <div class = "title">Menu</div>
-      </paper-toolbar>
-      <div> Drawer content... </div>
-    </paper-header-panel>
-    <paper-header-panel main>
-      <paper-toolbar>
-        <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-          <div class="title">
-            Anno'Tubes
-          </div>
-        </paper-toolbar>
-      <div> 
-        <h2>Hello [[prop1]]</h2>
+<paper-drawer-panel>
+  <paper-header-panel drawer>
+    <paper-toolbar>
+      <div class="title">Menu</div>
+    </paper-toolbar>
+    <div> Drawer content... </div>
+  </paper-header-panel>
+  <paper-header-panel main>
+    <paper-toolbar>
+      <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+      <div class="title">
+        Anno'Tubes
       </div>
-    </paper-header-panel>
-  </paper-drawer-panel>
+    </paper-toolbar>
+    <div>
+      <h2>Hello [[prop1]]</h2>
+      <form class="form-wrapper cf">
+        <input id="search-input" type="text" placeholder="[[placeholder]]" required>
+        <button type="submit" on-click="searchByKeyword">[[buttontext]]</button>
+      </form>
+    </div>
+  </paper-header-panel>
+</paper-drawer-panel>
 
 
 
-  </template>
+</template>
 
-  <script>
-    Polymer({
+<script>
+  Polymer({
 
-      is: 'annotube-app',
+    is: 'annotube-app',
 
-      properties: {
-        prop1: {
-          type: String,
-          value: 'annotube-app',
-        },
+    properties: {
+      prop1: {
+        type: String,
+        value: 'annotube-app',
       },
+      placeholder: {
+        type: String,
+        value: 'Search here...'
+      },
+      buttontext: {
+        type: String,
+        value: 'Search'
+      }
+    },
+    searchByKeyword: function () {
+      var inputElt = document.getElementById('search-input');
+      if (inputElt.validity.valid) {
+        console.log("titre de la recherche : " + inputElt.value);
+        var results = YouTube.Search.list('id,snippet', { q: 'dogs', maxResults: 25 });
+        for (var i in results.items) {
+          var item = results.items[i];
+          console.log('[%s] Title: %s', item.id.videoId, item.snippet.title);
 
-    });
-  </script>
+        }
+      }
+    }
+  });
+</script>
 </dom-module>
