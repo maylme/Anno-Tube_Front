@@ -3,3 +3,9 @@
 /node_modules
 npm-debug.log
 
+# OS generated files #
+.idea
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
