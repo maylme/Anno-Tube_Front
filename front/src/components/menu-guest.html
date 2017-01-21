@@ -1,0 +1,29 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="menu-item.html">
+<link rel="import" href="social-button.html">
+
+<dom-module id="menu-guest">
+    <template>
+        <style>
+       h3{
+           color: darkred;
+           width: 100%;
+           text-align: center;
+           font: bold 18px 'lucida sans', 'trebuchet MS', 'Tahoma';
+       }
+    </style>
+
+<h3>Se connecter via :</h3>
+<social-button back-color="#dc4d28" btn-name="Google" select-icon="-1"></social-button>
+<social-button back-color="#3b5998 " btn-name="Facebook" select-icon="0"></social-button>
+</template>
+
+<script>
+    Polymer({
+        is: 'menu-guest',
+
+        properties: {
+        }
+    });
+</script>
+</dom-module>

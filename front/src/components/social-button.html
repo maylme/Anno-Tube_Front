@@ -1,0 +1,59 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="social-button">
+    <template>
+        <style>
+            .container{
+                display: flex;
+                padding-left: 30px;
+                padding-bottom: 10px;
+            }
+            #iconContainer{
+                overflow: hidden;
+            }
+            #icon{
+                height: auto;
+            } 
+            #name{
+                color: #fff;
+                height: 20px;
+                width: 140px;
+                text-align: center;
+                font: bold 20px 'lucida sans', 'trebuchet MS', 'Tahoma';
+                padding: 10px 0px 15px 0px;
+                text-decoration: none;
+            }
+    </style>
+
+<div class="container">
+    <div id="iconContainer">
+        <img id="icon" src="../../assets/images/btn-connect-option.png">
+    </div>
+    <a id="name" href="#">[[btnName]]</a>
+</div>
+</template>
+
+<script>
+    Polymer({
+        is: 'social-button',
+        properties: {
+            backColor: String,
+            btnName: String,
+            selectIcon: String,
+            iconSize :{
+                type : Number,
+                readyOnly: true,
+                value: 45
+            }
+        },
+        ready: function(){
+            this.$.name.style.background = this.backColor;
+            this.$.icon.style.background = this.backColor;
+            this.$.icon.style.width = this.iconSize + "px";
+            this.$.iconContainer.style.width = this.iconSize + "px";
+            this.$.iconContainer.style.height = this.iconSize + "px";
+            this.$.icon.style.margin = (this.selectIcon * this.iconSize) + "px 0px 0px 0px";
+        }
+    });
+</script>
+</dom-module>
