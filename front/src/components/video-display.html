@@ -1,0 +1,53 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+
+<dom-module id="video-display">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            .youtube {
+                z-index: 100;
+            }
+            .canvas{
+                z-index: 101;
+                position: absolute;
+            }
+            .canvas, .youtube {
+                width: 100%;
+            }
+        </style>
+        <div class="canvas">
+            <canvas></canvas>
+        </div>
+        <div class="youtube">
+            <google-youtube
+                    video-id="[[videoId]]"
+                    fluid="true"
+                    rel="0"
+                    autoplay="1">
+                <!--
+                  video-id="SJubeTlS9CQ" id d'une video youtube directe
+                  height="270px"
+                  width="480px"
+                  start:number start at this time in second-->
+            </google-youtube>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'video-display',
+            properties: {
+                videoId: {
+                    type: String,
+                    value: "CIbfdfBeVLY",
+                    notify: true,
+                    reflectToAttribute: true
+                }
+            }
+        });
+    </script>
+</dom-module>
