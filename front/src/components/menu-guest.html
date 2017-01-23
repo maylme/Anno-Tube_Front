@@ -5,17 +5,54 @@
 <dom-module id="menu-guest">
     <template>
         <style>
-       h3{
-           color: darkred;
-           width: 100%;
-           text-align: center;
-           font: bold 18px 'lucida sans', 'trebuchet MS', 'Tahoma';
-       }
+           
+            h3{
+                color: darkred;
+                width: 100%;
+                text-align: center;
+                font: bold 18px 'lucida sans', 'trebuchet MS', 'Tahoma';
+            }
+
+            div.signUp{
+                margin: 0 30px 10px 30px;
+            }
+
+            a.signUp{
+                text-decoration: none;
+                width: 100%;
+            }
+            p.signUp{
+                color: white;
+                background-color: darkred;
+                height: 20px;
+                width: 100%;
+                text-align: center;
+                font: bold 20px 'lucida sans', 'trebuchet MS', 'Tahoma';
+                padding: 10px 0px 15px 0px;
+            }
+
+            div.signIn{
+                min-width: 100%;
+                text-align:center;
+            }
+            a.signIn{
+                color: darkred;
+                font: 14px 'lucida sans', 'trebuchet MS', 'Tahoma';
+            }
     </style>
 
 <h3>Se connecter via :</h3>
 <social-button back-color="#dc4d28" btn-name="Google" select-icon="-1"></social-button>
 <social-button back-color="#3b5998 " btn-name="Facebook" select-icon="0"></social-button>
+<a class="signUp" href="#">
+    <div class="signUp">
+        <p class="signUp">Créer un compte</p>
+    </div>
+</a>
+<div class="signIn">
+    <a class="signIn" href="#">Se connecter</a>
+</div>
+<iron-ajax id="ironAjax" method="post" on-response="postComplete"></iron-ajax>
 </template>
 
 <script>
