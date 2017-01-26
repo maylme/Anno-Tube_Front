@@ -52,20 +52,17 @@
 <div class="signIn">
     <a class="signIn" onclick="signIn();" href="#">Se connecter</a>
 </div>
-<iron-ajax id="ironAjax" method="post" on-response="postComplete"></iron-ajax>
 </template>
 
 <script>
 var http = new XMLHttpRequest();
     Polymer({
         is: 'menu-guest',
-
-        properties: {
-        }
     });
 
     function signIn(){
         var url = "https://node.edouardg.fr/login";
+        var token;
         var params = JSON.stringify({
             password: "password",
             username: "pseudo"
@@ -73,6 +70,7 @@ var http = new XMLHttpRequest();
 
         http.open("POST", url, true);
         http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
         http.send(params);
 
         http.onreadystatechange = function () {
