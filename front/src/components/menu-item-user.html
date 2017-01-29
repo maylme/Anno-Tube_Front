@@ -34,7 +34,14 @@
        .avatar {
         width: 40px;
         height: 40px;
-       }
+        background: #ddd;
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+        --iron-image-placeholder: {
+          background: #aaa;
+        };
+      }
 
        a:hover{
            background-color: lightgrey;
@@ -48,7 +55,9 @@
 
 <paper-item>
     <a class="my-account" name="myaccount" href="/myaccount">
-        <iron-icon class="avatar" icon="icons:account-circle" item-icon></iron-icon>
+        <!--iron-icon class="avatar" icon="icons:account-circle" item-icon></iron-icon-->
+        <iron-image class = "avatar" id="profile_img" src="[[userProfileImg]]" preload fade sizing="cover"></iron-image>
+ 
         <span>[[userName]]</span>
     </a>
 </paper-item>
@@ -59,14 +68,15 @@
         is: 'menu-item-user',
 
         properties: {
-            name: String,
-            href: String,
-            icon: String,
-            text: String
-            ,userName: {
+            userName: {
                 type: String,
-                value: "Thomas Clop",
-                notify: true
+                notify: true,
+                reflectToAttribute: true
+            },
+            userProfileImg:{
+              type: String,
+              notify: true,
+              reflectToAttribute: true
             }
         }
     });

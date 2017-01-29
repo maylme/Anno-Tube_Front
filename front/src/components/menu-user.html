@@ -21,11 +21,11 @@
         }
     </style>
 
-<menu-item-user user-name="[[userName]]"></menu-item-user>
+<menu-item-user user-name="[[userName]]" user-profile-img="[[userImg]]"></menu-item-user>
 <menu-item name="myannotatedvideos" href="/myannotatedvideos" icon="av:video-library" text="Mes vidéos annotées"></menu-item>
 <menu-item name="myfavoritesvideos" href="/myfavoritesvideos" icon="icons:favorite" text="Mes favoris Anno'Tubes"></menu-item>
-<menu-item-badge name="notifications" href="/notifications" icon="social:notifications" text="Notifications" nb-notifications="[[nbNotifications]]"></menu-item-badge>
-<menu-item name="Paramètres" href="/parameters" icon="icons:settings" text="Paramètres"></menu-item>
+<!--menu-item-badge name="notifications" href="/notifications" icon="social:notifications" text="Notifications" nb-notifications="[[nbNotifications]]"></menu-item-badge-->
+<menu-item name="Paramètres" href="/options" icon="icons:settings" text="Paramètres"></menu-item>
 <div class="signOut">
     <a class="signOut" onclick="signOut();" href="#">Se déconnecter</a>
 </div>
@@ -38,14 +38,24 @@
         properties: {
             userName: {
                 type: String,
-                value: "Thomas Clop",
                 notify: true
             },
             nbNotifications: {
                 type: Number,
-                value: 5,
+                notify: true
+            },
+            userImg: {
+                type: String,
                 notify: true
             }
+        },
+        ready : function(){
+            var that = this;
+            setTimeout(function(){ //part to do in ajax request in the server
+                that.userName = "User Test";
+                that.userImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                that.nbNotifications = 5;
+            }, 1000);   
         }
     });
 </script>
