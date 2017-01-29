@@ -58,22 +58,22 @@ By: Mayl
     Polymer({
       is: 'user-banner',
       properties: {
-      pseudo: {
-        type: String,
-        notify: true,
-        reflectToAttribute: true
+        pseudo: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        profileImg: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        backgroundImg: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
       },
-      profileImg: {
-        type: String,
-        notify: true,
-        reflectToAttribute: true
-      },
-      backgroundImg: {
-        type: String,
-        notify: true,
-        reflectToAttribute: true
-      },
-    },
     ready: function(){
       //load("profile_img");
     }

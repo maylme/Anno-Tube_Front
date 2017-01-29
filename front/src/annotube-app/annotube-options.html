@@ -75,7 +75,6 @@ By: Mayl
         },
         user_profile_img: {
           type: String,
-          value: "/assets/default/default_profile.svg"
         },
         user_background_img: {
           type: String,
@@ -84,11 +83,9 @@ By: Mayl
       },
       ready : function(){
         that = this;
-        setTimeout(function(){
-          that.user_pseudo = "Cindy";
+        setTimeout(function(){  //part to do in ajax request in the server
+          that.user_pseudo = "User Test";
           that.user_profile_img = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
-
-
           that.$$("paper-spinner").removeAttribute("active");
           that.$$("paper-spinner").setAttribute("hidden", "true");
           that.$$("#user_infos").removeAttribute("hidden");
