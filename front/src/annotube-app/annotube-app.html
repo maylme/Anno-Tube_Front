@@ -24,9 +24,12 @@
         border-right: 2px solid lightgrey;
         }
       }
-       .drawer-list a.iron-selected {
+      .drawer-list a.iron-selected {
         color: red;
         font-weight: bold;
+      }
+       paper-header-panel[main]{
+        background-color: #ddd;
       }
 
     </style>
@@ -64,8 +67,8 @@
           <div class="title">
             Anno'Tubes
           </div>
-        </paper-toolbar>
-      <div> 
+      </paper-toolbar>
+      <div class="truc"> 
         <!-- Pages à displays selon la route -->
         <iron-pages
             selected="[[page]]"
@@ -73,12 +76,11 @@
             fallback-selection="view404"
             role="main">
           <annotube-home name="home"></annotube-home>
+          <annotube-options name="options"></annotube-options>
+
           <!-- there include other views -->
           <annotube-view404 name="view404"></annotube-view404>
         </iron-pages>
-
-
-
       </div>
     </paper-header-panel>
   </paper-drawer-panel>
