@@ -1,0 +1,60 @@
+<!--
+Search result page
+
+By: Tom
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="./shared-styles.html">
+
+<dom-module id="annotube-search-result">
+  <template>
+    <style include="shared-styles">
+    </style>
+<iron-ajax auto id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "q":"thomas clop", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video", "maxResults":"10", "pageToken": ""}'
+  handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
+<div class="card">
+  <template is="dom-repeat" items="[[response.items]]">
+    <p>{{item.snippet.title}}</p>
+  </template>
+  <template is="dom-if" if="[[prevPageTk]]">
+    <button id="prevPageBt" on-tap="reload">prev page</button>
+  </template>
+  <template is="dom-if" if="[[nextPageTk]]">
+    <button id="nextPageBt" on-tap="reload">next page</button>
+  </template>
+</div>
+
+</template>
+
+<script>
+  Polymer({
+    is: 'annotube-search-result',
+
+    properties: {
+      nextPageTk: {
+        type: String,
+        notify: true
+      },
+      prevPageTk: {
+        type: String,
+        notify: true
+      }
+    },
+    reload: function (e) {
+      if (e.target.id == "nextPageBt") {
+        this.$.ajax.params.pageToken = this.nextPageTk;
+      } else {
+        this.$.ajax.params.pageToken = this.prevPageTk;
+      }
+      this.$.ajax.generateRequest();
+    },
+    youtubeResponse: function (result) {
+      this.nextPageTk = result.detail.response.nextPageToken;
+      this.prevPageTk = result.detail.response.prevPageToken;
+    }
+  });
+
+</script>
+</dom-module>
