@@ -27,7 +27,7 @@
 <!--menu-item-badge name="notifications" href="/notifications" icon="social:notifications" text="Notifications" nb-notifications="[[nbNotifications]]"></menu-item-badge-->
 <menu-item name="Paramètres" href="/options" icon="icons:settings" text="Paramètres"></menu-item>
 <div class="signOut">
-    <a class="signOut" onclick="signOut();" href="#">Se déconnecter</a>
+    <a class="signOut" on-tap="signOut" href="#">Se déconnecter</a>
 </div>
 </template>
 
@@ -38,15 +38,12 @@
         properties: {
             userName: {
                 type: String,
-                notify: true
             },
             nbNotifications: {
                 type: Number,
-                notify: true
             },
             userImg: {
                 type: String,
-                notify: true
             }
         },
         ready : function(){
@@ -54,8 +51,30 @@
             setTimeout(function(){ //part to do in ajax request in the server
                 that.userName = "User Test";
                 that.userImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                console.log(that.userImg);
                 that.nbNotifications = 5;
             }, 1000);   
+        },
+        signOut: function(){
+            console.log("signout");
+            var that = this;
+            var url = "https://node.edouardg.fr/logout";
+            http.open("GET", url, true);
+            http.send();
+
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status == 200) {
+                        console.log(http.responseText);
+                        document.location = "/";
+                    } else if (http.status == 400) {
+                        console.log(JSON.parse(http.responseText).message);
+                        that.$$("granite-alert").removeAttribute("hidden");
+                    }
+                } else if (http.status == 500) {
+                   console.log("The server has encountered a situation it doesn't know how to handle.");
+                }
+            };
         }
     });
 </script>

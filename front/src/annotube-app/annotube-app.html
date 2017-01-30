@@ -8,7 +8,7 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../components/annotube-menu.html">
-
+<script type="text/javascript" src = "../../bower_components/jquery/dist/jquery.min.js"></script>
 <!-- for routing: -->
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
@@ -47,7 +47,7 @@
     <paper-toolbar>
       <div class="title">Menu</div>
     </paper-toolbar>
-    <annotube-menu></annotube-menu>
+    <annotube-menu is-guest="[[isGuest]]"></annotube-menu>
   </paper-header-panel>
   <paper-header-panel main>
     <paper-toolbar>
@@ -61,6 +61,7 @@
       <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
         <annotube-home name="home"></annotube-home>
         <annotube-options name="options"></annotube-options>
+        <annotube-signin name="signin"></annotube-signin>
 
         <!-- there include other views -->
         <annotube-view404 name="view404"></annotube-view404>
@@ -88,10 +89,47 @@
         reflectToAttribute: true,
         observer: '_pageChanged',
       },
+      isGuest: {
+        type: Boolean,
+        notify: true
+      },
+      routeData:{
+        type: Object,
+      }
     },
     observers: [
       '_routePageChanged(routeData.page)',
     ],
+
+    ready : function(){
+      var that = this;
+      var http = new XMLHttpRequest();
+      var url = "https://node.edouardg.fr/user/me";
+
+      http.open("GET", url, true);
+      http.withCredentials = true;
+      http.send();
+
+      http.onreadystatechange = function () {
+          if (http.readyState == 4) {
+              if (http.status == 200) {
+                console.log(http.response);
+                that.isGuest = false;
+                that._routePageChanged(that.routeData.page);
+                that._pageChanged(that.page);
+              } else {
+                console.log("nope");
+                that.isGuest = true;
+                that._routePageChanged(that.routeData.page);
+                that._pageChanged(that.page);  
+              }
+          } else {
+            that.isGuest = true;
+            that._routePageChanged(that.routeData.page);
+            that._pageChanged(that.page);
+          }
+      };
+    },
 
     _routePageChanged: function (page) {
       this.page = page || 'home';
@@ -103,16 +141,45 @@
 
     _pageChanged: function (page) {
       // Load page import on demand. Show 404 page if fails
-      var resolvedPageUrl = this.resolveUrl("annotube-" + page + '.html');
-      this.importHref(resolvedPageUrl, null, this._showPage404, true);
+      if (this.isGuest){
+        if (page == "options"){
+          this._showPageForbidden();
+        }else{
+          var resolvedPageUrl = this.resolveUrl("annotube-" + page + '.html');
+          this.importHref(resolvedPageUrl, null, this._showPage404, true);
+        }
+      }else{
+        var resolvedPageUrl = this.resolveUrl("annotube-" + page + '.html');
+        this.importHref(resolvedPageUrl, null, this._showPage404, true);
+      }
     },
 
     _showPage404: function () {
       this.page = 'view404';
     },
 
-
+    _showPageForbidden: function(){
+      this.page = "forbidden";
+    }
 
   });
+</script>
+
+<script type="text/javascript">
+  function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+  } 
 </script>
 </dom-module>

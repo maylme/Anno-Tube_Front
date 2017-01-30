@@ -50,65 +50,14 @@
     </div>
 </a>
 <div class="signIn">
-    <a class="signIn" onclick="signIn();" href="#">Se connecter</a>
+    <a class="signIn" href="/signin" >Se connecter</a>
 </div>
 </template>
 
 <script>
-var http = new XMLHttpRequest();
     Polymer({
         is: 'menu-guest',
     });
-
-    function signIn(){
-        var url = "https://node.edouardg.fr/login";
-        var token;
-        var params = JSON.stringify({
-            password: "password",
-            username: "pseudo"
-        });
-
-        http.open("POST", url, true);
-        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-        http.withCredentials = true;
-        http.send(params);
-
-        http.onreadystatechange = function () {
-            if (http.readyState == 4) {
-                if (http.status == 200) {
-                    alert(http.responseText);
-                } else if (http.status == 400) {
-                    alert(JSON.parse(http.responseText).message);
-                }
-            } else if (http.status == 500) {
-                console.log("The server has encountered a situation it doesn't know how to handle.");
-            }
-        }
-    }
-
-    function signUp() {
-        var url = "https://node.edouardg.fr/user";
-        var params = JSON.stringify({
-            email: "pseudo@mail.fr",
-            password: "password",
-            username: "pseudo"
-        });
-
-        http.open("POST", url, true);
-        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-        http.send(params);
-
-        http.onreadystatechange = function () {
-            if (http.readyState == 4) {
-                if (http.status == 200) {
-                    alert(http.responseText);
-                } else if (http.status == 400) {
-                    alert(JSON.parse(http.responseText).message);
-                }
-            } else if (http.status == 500) {
-                console.log("The server has encountered a situation it doesn't know how to handle.");
-            }
-        }
-    };
+    
 </script>
 </dom-module>
