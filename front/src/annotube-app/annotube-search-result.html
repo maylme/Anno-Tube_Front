@@ -3,27 +3,86 @@ Search result page
 
 By: Tom
 -->
-
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="./shared-styles.html">
 
 <dom-module id="annotube-search-result">
   <template>
     <style include="shared-styles">
+      .resultCell{
+        margin: 15px 15px 0px 15px;
+      }
+      .youtubeData{
+        display: inline-block;
+      }
+      .thumbnails{
+        width: 33%;
+        height: auto;
+        float: left;
+        border-radius: 3px;
+      }
+      .videoInformations{
+        width: 65%;
+        margin: 0 1%;
+        float: left;
+      }
+      .videoTitle{
+        font-size: 15px;
+        color: #424242;
+        margin: 5px 0px 0px 0px;
+      }
+      .videoAuthorDate{
+        font-size: 12px;
+        margin: 5px 0px 0px 0px;
+      }
+      .videoDescription{
+        font-size: 12px;
+        color: #424242;
+        margin: 5px 0px 0px 0px;
+      }
+
+      .prevNext{
+        display: flex;
+      }
+      .divPrev{
+       margin-right: auto;
+       padding: 10px;
+     }
+     .divNext{
+       margin-left: auto;
+       padding: 10px;
+     }
     </style>
-<iron-ajax auto id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "q":"thomas clop", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video", "maxResults":"10", "pageToken": ""}'
+<iron-ajax auto id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "q":"thomas clop", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video","relevanceLanguage":"fr-fr", "maxResults":"10", "pageToken": ""}'
   handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
-<div class="card">
+<div class="card" style="padding-top: 1px;">
   <template is="dom-repeat" items="[[response.items]]">
-    <p>{{item.snippet.title}}</p>
+    <div class="resultCell">
+      <div class="youtubeData">
+        <img class="thumbnails" src="{{item.snippet.thumbnails.medium.url}}" />
+        <div class="videoInformations">
+          <p class="videoTitle">{{item.snippet.title}}</p>
+          <p class="videoAuthorDate">{{item.snippet.channelTitle}} - {{item.snippet.publishedAt}}</p>
+          <p class="videoDescription">{{item.snippet.description}}</p>
+        </div>
+      </div>
+      <hr />
+    </div>
   </template>
-  <template is="dom-if" if="[[prevPageTk]]">
-    <button id="prevPageBt" on-tap="reload">prev page</button>
-  </template>
-  <template is="dom-if" if="[[nextPageTk]]">
-    <button id="nextPageBt" on-tap="reload">next page</button>
-  </template>
+  <div class="prevNext">
+    <div class="divPrev" align="left">
+      <template is="dom-if" if="[[prevPageTk]]">
+        <paper-button raised id="prevPageBt" on-tap="reload">&larr; Précédente</paper-button>
+      </template>
+    </div>
+    <div class="divNext" align="right">
+      <template is="dom-if" if="[[nextPageTk]]">
+        <paper-button raised id="nextPageBt" on-tap="reload">Suivante &rarr;</paper-button>
+      </template>
+    </div>
+  </div>
 </div>
 
 </template>
