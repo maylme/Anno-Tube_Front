@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
 <link rel="import" href="../components/video-display.html">
 <link rel="import" href="../components/video-info.html">
+<link rel="import" href="../components/video-comment.html">
 
 <dom-module id="annotube-video-display">
     <template>
@@ -16,6 +17,11 @@
                 width: 60%;
             }
 
+            video-comment {
+                position: relative;
+                width: 60%;
+            }
+
             video-info {
 
             }
@@ -23,6 +29,10 @@
 
         <video-display class="video"></video-display>
         <video-info ></video-info>
+        <!--<template is="dom-repeat" items={{items}} as="stuff">  
+            ...
+        </template>-->
+        <video-comment></video-comment>
 
     </template>
 
