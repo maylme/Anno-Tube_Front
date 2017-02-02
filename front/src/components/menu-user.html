@@ -71,6 +71,7 @@
                     if (http.status == 200) {
                         var res = JSON.parse(http.response);
                         that.userName = res.username;
+                        that.userImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
                     }
                 }
             };
