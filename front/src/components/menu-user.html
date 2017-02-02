@@ -21,6 +21,8 @@
         }
     </style>
 
+
+
 <menu-item-user user-name="[[userName]]" user-profile-img="[[userImg]]"></menu-item-user>
 <menu-item name="myannotatedvideos" href="/myannotatedvideos" icon="av:video-library" text="Mes vidéos annotées"></menu-item>
 <menu-item name="myfavoritesvideos" href="/myfavoritesvideos" icon="icons:favorite" text="Mes favoris Anno'Tubes"></menu-item>
@@ -44,16 +46,34 @@
             },
             userImg: {
                 type: String,
+            },
+            userId:{
+                type: String,
+                notify: true,
+                reflectToAttribute: true,
+                observer: '_userIdLoaded'
             }
         },
         ready : function(){
+            //console.log("reponse ready", this.userId);
+        },
+        _userIdLoaded: function(newValue, oldValue){
             var that = this;
-            setTimeout(function(){ //part to do in ajax request in the server
-                that.userName = "User Test";
-                that.userImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
-                console.log(that.userImg);
-                that.nbNotifications = 5;
-            }, 1000);   
+            var http = new XMLHttpRequest();
+            console.log("newValue", newValue, oldValue, this.userId);
+            var url = "https://node.edouardg.fr/user/"+this.userId;
+
+            http.open("GET", url, true);
+            http.withCredentials = true;
+            http.send();
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status == 200) {
+                        var res = JSON.parse(http.response);
+                        that.userName = res.username;
+                    }
+                }
+            };
         },
         signOut: function(){
             var http = new XMLHttpRequest();
@@ -67,7 +87,7 @@
                 if (http.readyState == 4) {
                     if (http.status == 200) {
                         console.log(http.responseText);
-                        //document.location = "/";
+                        document.location = "/";
                     } else if (http.status == 400) {
                         console.log(JSON.parse(http.responseText).message);
                         that.$$("granite-alert").removeAttribute("hidden");
