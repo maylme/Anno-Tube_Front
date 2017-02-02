@@ -11,7 +11,9 @@
     "iron-image": "PolymerElements/iron-image#^1.2.5",
     "paper-spinner": "PolymerElements/paper-spinner#^1.2.1",
     "paper-item": "PolymerElements/paper-item#^1.2.1",
-    "paper-badge": "PolymerElements/paper-badge#^1.1.4"
+    "paper-badge": "PolymerElements/paper-badge#^1.1.4",
+    "jquery": "^3.1.1",
+    "granite-alert": "LostInBrittany/granite-alert#^1.0.5"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
