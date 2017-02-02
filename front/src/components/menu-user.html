@@ -1,0 +1,62 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="menu-item.html">
+<link rel="import" href="menu-item-badge.html">
+<link rel="import" href="menu-item-user.html">
+
+<dom-module id="menu-user">
+    <template>
+        <style>
+       div.signOut{
+                min-width: 100%;
+                text-align:center;
+            }
+        a.signOut{
+            color: darkred;
+            font: 14px 'lucida sans', 'trebuchet MS', 'Tahoma';
+        }
+    </style>
+
+<menu-item-user user-name="[[userName]]" user-profile-img="[[userImg]]"></menu-item-user>
+<menu-item name="myannotatedvideos" href="/myannotatedvideos" icon="av:video-library" text="Mes vidéos annotées"></menu-item>
+<menu-item name="myfavoritesvideos" href="/myfavoritesvideos" icon="icons:favorite" text="Mes favoris Anno'Tubes"></menu-item>
+<!--menu-item-badge name="notifications" href="/notifications" icon="social:notifications" text="Notifications" nb-notifications="[[nbNotifications]]"></menu-item-badge-->
+<menu-item name="Paramètres" href="/options" icon="icons:settings" text="Paramètres"></menu-item>
+<div class="signOut">
+    <a class="signOut" onclick="signOut();" href="#">Se déconnecter</a>
+</div>
+</template>
+
+<script>
+    Polymer({
+        is: 'menu-user',
+
+        properties: {
+            userName: {
+                type: String,
+                notify: true
+            },
+            nbNotifications: {
+                type: Number,
+                notify: true
+            },
+            userImg: {
+                type: String,
+                notify: true
+            }
+        },
+        ready : function(){
+            var that = this;
+            setTimeout(function(){ //part to do in ajax request in the server
+                that.userName = "User Test";
+                that.userImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                that.nbNotifications = 5;
+            }, 1000);   
+        }
+    });
+</script>
+</dom-module>
