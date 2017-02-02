@@ -1,0 +1,72 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="search-bar">
+    <template>
+        <style>            
+            .search-wrapper input {
+                width: 74%;
+                min-width: 30%;
+                padding: 10px 1%;
+                float: left;
+                font: bold 18px 'lucida sans', 'trebuchet MS', 'Tahoma';
+                border: 0;
+                background: #eee;
+            }
+            
+            .search-wrapper input:focus {
+                outline: 1px solid gray;
+                background: #eee;
+            }   
+            
+            .search-wrapper button {
+                overflow: visible;
+                position: relative;
+                float: right;
+                border: 0;
+                padding: 0;
+                cursor: pointer;
+                width: 24%;
+                height: 40px;
+                font: bold 16px/40px 'lucida sans', 'trebuchet MS', 'Tahoma';
+                color: #eee;
+                text-transform: uppercase;
+                background: darkred;
+            }
+
+            .search-wrapper button:hover{		
+                background: #c00;
+            }	
+            
+            .search-wrapper button:active,
+            .search-wrapper button:focus{   
+                background: #900;    
+            } 
+            
+            .search-wrapper button::-moz-focus-inner {
+                border: 0;
+                padding: 0;
+            }
+        </style>
+
+<div class="search-wrapper">
+    <input id="search-input" type="text" placeholder="[[placeholder]]" name="searchValue" required>
+    <button type="submit">[[buttontext]]</button>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'search-bar',
+            properties: {
+                placeholder: {
+                    type: String,
+                    value: 'Search on YouTube...'
+                },
+                buttontext: {
+                    type: String,
+                    value: 'Search'
+                }
+            }
+        });
+
+    </script>
+</dom-module>

@@ -6,41 +6,19 @@ By: Tom
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../components/search-result-item.html">
+<link rel="import" href="../components/search-bar.html">
 <link rel="import" href="./shared-styles.html">
 
 <dom-module id="annotube-search-result">
   <template>
     <style include="shared-styles">
-      .resultCell{
-        margin: 15px 15px 0px 15px;
-      }
-      .youtubeData{
-        display: inline-block;
-      }
-      .thumbnails{
-        width: 33%;
-        height: auto;
-        float: left;
-        border-radius: 3px;
-      }
-      .videoInformations{
-        width: 65%;
-        margin: 0 1%;
-        float: left;
-      }
-      .videoTitle{
-        font-size: 15px;
-        color: #424242;
-        margin: 5px 0px 0px 0px;
-      }
-      .videoAuthorDate{
-        font-size: 12px;
-        margin: 5px 0px 0px 0px;
-      }
-      .videoDescription{
-        font-size: 12px;
-        color: #424242;
-        margin: 5px 0px 0px 0px;
+      .form-wrapper {
+          width: 40%;
+          height: 40px;
+          min-width: 300px;
+          margin: 1% auto;
+          box-shadow: 2px 2px 5px lightgray ; 
       }
 
       .prevNext{
@@ -55,21 +33,15 @@ By: Tom
        padding: 10px;
      }
     </style>
-<iron-ajax auto id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "q":"thomas clop", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video","relevanceLanguage":"fr-fr", "maxResults":"10", "pageToken": ""}'
+<iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video","relevanceLanguage":"fr-fr", "maxResults":"10"}'
   handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
+  
 <div class="card" style="padding-top: 1px;">
+  <form class="form-wrapper" method="get" target="_self">
+    <search-bar></search-bar>
+  </form>
   <template is="dom-repeat" items="[[response.items]]">
-    <div class="resultCell">
-      <div class="youtubeData">
-        <img class="thumbnails" src="{{item.snippet.thumbnails.medium.url}}" />
-        <div class="videoInformations">
-          <p class="videoTitle">{{item.snippet.title}}</p>
-          <p class="videoAuthorDate">{{item.snippet.channelTitle}} - {{item.snippet.publishedAt}}</p>
-          <p class="videoDescription">{{item.snippet.description}}</p>
-        </div>
-      </div>
-      <hr />
-    </div>
+    <search-result-item youtube-item="{{item}}"></search-result-item>
   </template>
   <div class="prevNext">
     <div class="divPrev" align="left">
@@ -100,6 +72,10 @@ By: Tom
         type: String,
         notify: true
       }
+    },
+    ready: function(){
+      this.$.ajax.params.q = window.location.search.substr(1).split("=")[1];
+      this.$.ajax.generateRequest();
     },
     reload: function (e) {
       if (e.target.id == "nextPageBt") {

@@ -1,0 +1,119 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<dom-module id="search-result-item">
+    <template>
+        <style>
+            .resultCell{
+                margin: 15px 15px 0px 15px;
+            }
+            .youtubeData{
+                display: inline-block;
+                width: 100%;
+            }
+            .thumbnails{
+                width: 33%;
+                --iron-image-width: 100%;
+                --iron-image-height: auto;
+                float: left;
+                border-radius: 3px;
+            }
+            .videoInformations{
+                width: 65%;
+                margin: 0 1%;
+                float: left;
+            }
+            .videoTitle{
+                font:bold 16pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                color: #424242;
+                margin: 0px;
+            }
+            .videoAuthorDate{
+                font:normal 11pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                margin: 5px 0px 0px 0px;
+            }
+            .videoDescription{
+                font:normal 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                color: #424242;
+                margin: 5px 0px 0px 0px;
+            }
+
+            @media screen and (max-width: 1080px) {
+                .videoTitle{
+                    font:bold 14pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                }
+                .videoAuthorDate{
+                    font:normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                }
+                .videoDescription{
+                    font:normal 12pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                }
+            }
+            @media screen and (max-width: 860px) {
+                .videoTitle{
+                    font:bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                }
+                .videoAuthorDate{
+                    font:normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                }
+                .videoDescription{
+                    font:normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                }
+            }
+            @media screen and (max-width: 460px) {
+                .videoTitle{
+                    font:bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                    margin: 5px 0 0 0;
+                }
+                .videoAuthorDate{
+                    font:normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                }
+                .videoDescription{
+                    display: none;
+                }
+                .thumbnails{
+                    width: 100%;
+                    --iron-image-width: 100%;
+                    --iron-image-height: auto;
+                    border-radius: 3px;
+                }
+                .videoInformations{
+                    width: 100%;
+                    margin: 0 1%;
+                }
+            }
+        </style>
+
+<div class="resultCell">
+    <div class="youtubeData">
+        <iron-image class="thumbnails" src="{{youtubeItem.snippet.thumbnails.medium.url}}"></iron-image>
+        <div class="videoInformations">
+            <p class="videoTitle">{{youtubeItem.snippet.title}}</p>
+            <p id="authorDate" class="videoAuthorDate">{{youtubeItem.snippet.channelTitle}} - {{youtubeItem.snippet.publishedAt}}</p>
+            <p class="videoDescription">{{youtubeItem.snippet.description}}</p>
+        </div>
+    </div>
+    <hr />
+</div>
+</template>
+
+<script>
+    Polymer({
+        is: 'search-result-item',
+        properties: {
+            youtubeItem: {
+                type: Object,
+                notify: true,
+            }
+        },
+        ready: function () {
+            var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+            var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+            var date = new Date(this.youtubeItem.snippet.publishedAt);
+            this.youtubeItem.snippet.publishedAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + date.getMinutes();
+            this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
+        }
+    });
+
+</script>
+</dom-module>
