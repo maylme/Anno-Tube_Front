@@ -16,10 +16,10 @@
         <menu-item name="home" href="/home" icon="icons:home" text="Accueil"></menu-item>
         <menu-item name="whatshot" href="/whatshot" icon="social:whatshot" text="Tendances"></menu-item>
         <hr/>
-        <template is="dom-if" if="[[!isGuest]]">
-            <menu-user></menu-user>
+        <template is="dom-if" if="[[userId]]">
+            <menu-user user-id = [[userId]]></menu-user>
         </template>
-        <template is="dom-if" if="[[isGuest]]">
+        <template is="dom-if" if="[[!userId]]">
             <menu-guest></menu-guest>
         </template>
     </iron-selector>
@@ -32,15 +32,15 @@
         is: 'annotube-menu',
 
         properties: {
-            isGuest: {
-                type: Boolean,
+            userId: {
+                type: String,
                 notify: true,
                 reflectToAttribute: true
             }
         },
 
         ready: function(){
-           // console.log( document.cookie);
+           //console.log( this.userId);
         }
     });
 </script>

@@ -47,7 +47,7 @@
     <paper-toolbar>
       <div class="title">Menu</div>
     </paper-toolbar>
-    <annotube-menu is-guest="[[isGuest]]"></annotube-menu>
+    <annotube-menu user-id="[[userId]]"></annotube-menu>
   </paper-header-panel>
   <paper-header-panel main>
     <paper-toolbar>
@@ -60,9 +60,11 @@
       <!-- Pages à displays selon la route -->
       <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
         <annotube-home name="home"></annotube-home>
-        <annotube-options name="options"></annotube-options>
-        <annotube-search-result name="search-result"></annotube-search-result>
+        <annotube-options name="options" user-id = [[userId]]></annotube-options>
         <annotube-signin name="signin"></annotube-signin>
+        <annotube-signup name="signup"></annotube-signup>
+        <annotube-search-result name="search-result"></annotube-search-result>
+
         <!-- there include other views -->
         <annotube-view404 name="view404"></annotube-view404>
       </iron-pages>
@@ -89,8 +91,8 @@
         reflectToAttribute: true,
         observer: '_pageChanged',
       },
-      isGuest: {
-        type: Boolean,
+      userId: {
+        type: String,
         notify: true
       },
       routeData:{
@@ -114,17 +116,16 @@
           if (http.readyState == 4) {
               if (http.status == 200) {
                 console.log(http.response);
-                that.isGuest = false;
+                that.userId = JSON.parse(http.response)._id;
                 that._routePageChanged(that.routeData.page);
                 that._pageChanged(that.page);
               } else {
-                console.log("nope");
-                that.isGuest = true;
+                that.userId = null;
                 that._routePageChanged(that.routeData.page);
                 that._pageChanged(that.page);  
               }
           } else {
-            that.isGuest = true;
+            that.userId = null;
             that._routePageChanged(that.routeData.page);
             that._pageChanged(that.page);
           }
@@ -141,7 +142,7 @@
 
     _pageChanged: function (page) {
       // Load page import on demand. Show 404 page if fails
-      if (this.isGuest){
+      if (! this.userId){
         if (page == "options"){
           this._showPageForbidden();
         }else{
@@ -165,21 +166,4 @@
   });
 </script>
 
-<script type="text/javascript">
-  function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-  } 
-</script>
 </dom-module>

@@ -9,7 +9,7 @@ Mayl
 <link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
 <link rel="import" href="./shared-styles.html">
 
-<dom-module id="annotube-signin">
+<dom-module id="annotube-signup">
   <template>
     <style include="shared-styles">
       :host {
@@ -49,7 +49,7 @@ Mayl
 
   <script>
     Polymer({
-      is: 'annotube-signin',
+      is: 'annotube-signup',
 
       properties: {
         login:{
@@ -74,36 +74,65 @@ Mayl
         this.login = this.$.login.value;
         this.password = this.$.password.value;
         this.email = this.$.email.value;
+        this.isValid();
 
         //console.log("i changed", this.login);
       },
-
+      isValid: function(){
+        var is_valid = true;
+        
+        if(this.password== null || this.password.length < 5){
+          is_valid = false;
+          this.alertMessage = "Mot de passe trop court : 6 caractères minimum";
+          this.$$("granite-alert").removeAttribute("hidden");
+        }
+        if(this.login == null || this.login.length < 4){
+          is_valid = false;
+          this.alertMessage = "Pseudo trop court : 5 caractères minimum";
+          this.$$("granite-alert").removeAttribute("hidden");
+        }
+        if(this.login== null || this.login.length > 13){
+          is_valid = false;
+          this.alertMessage = "Pseudo trop long : 12 caractères minimum";
+          this.$$("granite-alert").removeAttribute("hidden");
+        }
+        if (is_valid){
+          this.$$("granite-alert").setAttribute("hidden", "true");
+        }
+        return is_valid;
+      },
       signup: function(){
         var that = this;
-        var url = "https://node.edouardg.fr/user";
-        var params = JSON.stringify({
-            email:  that.$.email.value ,              //"pseudo@mail.fr",
-            password:  that.$.password.value ,        //"password",
-            username:  that.$.username.value          //"pseudo"
-        });
 
-        http.open("POST", url, true);
-        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-        http.send(params);
+        if(this.isValid()){
+          var http = new XMLHttpRequest();
 
-        http.onreadystatechange = function () {
-            if (http.readyState == 4) {
-                if (http.status == 200) {
-                    alert(http.responseText);
-                } else if (http.status == 400) {
-                    that.alertMessage = JSON.parse(http.responseText).message;
-                    that.$$("granite-alert").removeAttribute("hidden");
-                }
-            } else if (http.status == 500) {
-                that.alertMessage = "The server has encountered a situation it doesn't know how to handle.";
-                that.$$("granite-alert").removeAttribute("hidden");
-            }
-        };
+          var url = "https://node.edouardg.fr/user";
+          var params = JSON.stringify({
+              email:  that.$.email.value ,              //"pseudo@mail.fr",
+              password:  that.$.password.value ,        //"password",
+              username:  that.$.login.value          //"pseudo"
+          });
+
+          http.open("POST", url, true);
+          http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+          http.send(params);
+
+          http.onreadystatechange = function () {
+              if (http.readyState == 4) {
+                  if (http.status == 200) {
+                      console.log(http.responseText);
+                  } else if (http.status == 400) {
+                      that.alertMessage = JSON.parse(http.responseText).message;
+                      that.$$("granite-alert").removeAttribute("hidden");
+                  }
+              } else if (http.status == 500) {
+                  that.alertMessage = "The server has encountered a situation it doesn't know how to handle.";
+                  that.$$("granite-alert").removeAttribute("hidden");
+              }
+          };
+        }
+        
       }
     });
   </script>
