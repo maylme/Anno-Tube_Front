@@ -1,0 +1,149 @@
+<!--
+Notification page
+
+By: Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../components/user-banner.html">
+<link rel="import" href="./shared-styles.html">
+<link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
+
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<dom-module id="annotube-profile">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      iron-icon{
+        cursor: pointer;
+        --iron-icon-fill-color : darkred;
+        --iron-icon-height : 30px;
+        --iron-icon-width: 30px;
+        margin-right: 20px;
+      }
+      .icon{
+
+        position: absolute;
+        top: -50px;
+        left: 185px;
+      }
+  
+    </style>
+
+   <div class="card">
+     <user-banner 
+     pseudo="[[profilePseudo]]" 
+     profile-img="[[profileImg]]" 
+     background-img="[[profileBackground_img]]"></user-banner>
+     <div class="pd16 relative">
+        <paper-spinner id = "spinner" alt="Chargement des paramètres" active></paper-spinner>     
+
+        <div class="icon">
+          <template is="dom-if" if="[[profileYoutube_chanel]]">
+            <iron-icon id="youtube" 
+            icon="av:video-library" 
+            on-tap="openTab">
+            </iron-icon>
+            <paper-tooltip for="youtube" offset="0">Chaine Youtube</paper-tooltip>
+          </template>
+          <template is="dom-if" if="[[profileWebsite]]">
+            <iron-icon is="dom-if" if="[[profileWebsite]]"  id="website" icon="communication:screen-share"
+            on-tap="openTab">
+            </iron-icon>
+            <paper-tooltip for="website" offset="0">Site internet</paper-tooltip>
+          </template>
+        </div>
+
+        <div  id="description">
+          [[profileDescription]]
+        </div>
+      </div>
+   </div>
+   
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotube-profile',
+
+      properties: {
+        profilePseudo: {
+          type: String,
+        },
+        profileImg: {
+          type: String,
+          value: "/assets/default/default_profile.svg"
+        },
+        profileWebsite: {
+          type: String,
+          value: false
+        },
+        profileDescription: {
+          type: String,
+        },
+        profileYoutube_chanel: {
+          type: String,
+        },
+        profileId:{
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_userIdLoaded'
+        },
+        profileBackground_img: {
+          type: String,
+          value:"http://htmlcolorcodes.com/assets/images/html-color-codes-color-tutorials-hero-00e10b1f.jpg",
+        },
+      },
+      _userIdLoaded : function(){
+        console.log("composant", this.profileId);
+        var that = this;
+        var http = new XMLHttpRequest();
+        var url = "https://node.edouardg.fr/user/"+this.profileId;
+
+        http.open("GET", url, true);
+        http.withCredentials = true;
+        http.send();
+        http.onreadystatechange = function () {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                    var res = JSON.parse(http.response);
+                    that.profilePseudo = res.username;
+                    //that.profileImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                    console.log(res);
+                    if (res.website){
+                      that.profileWebsite= res.website;
+                    }
+                    if (res.description){
+                      that.profileDescription= res.description;
+                    }
+                    if (res.youtube_chanel){
+                      that.profileYoutube_chanel= res.youtube_chanel;
+                    }
+
+                    that.$$("paper-spinner").setAttribute("hidden", "true");
+                    
+                }
+            }
+        };
+      },
+      openTab: function(url){
+        console.log(url.target.id);
+        if (url.target.id =="website"){
+          window.open(this.profileWebsite,'_blank');
+        }
+        if (url.target.id =="youtube"){
+          window.open(this.profileYoutube_chanel,'_blank');
+        }
+      }
+
+    });
+  </script>
+</dom-module>
