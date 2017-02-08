@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
 
 <dom-module id="search-result-item">
     <template>
@@ -23,6 +24,14 @@
                 margin: 0 1%;
                 float: left;
             }
+            paper-badge{
+                --paper-badge-width:30px;
+                --paper-badge-height: 30px;
+                --paper-badge-margin-left: -10px;
+                --paper-badge-margin-bottom: -10px;
+                --paper-badge-background: darkred;
+            }
+
             .videoTitle{
                 font:bold 16pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 color: #424242;
@@ -85,7 +94,7 @@
         </style>
 
 <div class="resultCell">
-    <div class="youtubeData">
+    <div id="youtubeVideo" class="youtubeData">
         <iron-image class="thumbnails" src="{{youtubeItem.snippet.thumbnails.medium.url}}"></iron-image>
         <div class="videoInformations">
             <p class="videoTitle">{{youtubeItem.snippet.title}}</p>
@@ -93,6 +102,9 @@
             <p class="videoDescription">{{youtubeItem.snippet.description}}</p>
         </div>
     </div>
+    <template is="dom-if" if="[[nbVersions]]">
+        <paper-badge for="youtubeVideo" label="[[nbVersions]]"></paper-badge>
+    </template>
     <hr />
 </div>
 </template>
@@ -103,6 +115,10 @@
         properties: {
             youtubeItem: {
                 type: Object,
+                notify: true,
+            },
+            nbVersions: {
+                type: Number,
                 notify: true,
             }
         },
@@ -115,30 +131,34 @@
             this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
         },
         getNumberOfVersion: function(param){
-            console.log(param);
             var that = this;
             var http = new XMLHttpRequest();
             var url = "https://node.edouardg.fr/video";
 
             http.open("GET", url, true);
-            // http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-            // http.withCredentials = true;
+            http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+            http.withCredentials = true;
             http.send();
 
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status == 200) {
-                        that.backResponse(http.response);
+                        var matchVideo = [];
+                        var answer = JSON.parse(http.response);
+                        for(var i = 0; i < answer.length; i++){
+                            if(answer[i].url == param){
+                                matchVideo.push(answer[i]);
+                            }
+                        }
+                        that.backResponse(matchVideo);
                     } else {
                          console.log(http.response);
                     }
-                } else {
-                    console.log(http.response);
                 }
             };
         },
         backResponse: function(result){
-            console.log(result);
+            this.nbVersions = result.length;
         }
     });
 </script>
