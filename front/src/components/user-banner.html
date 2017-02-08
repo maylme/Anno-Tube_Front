@@ -12,45 +12,49 @@ By: Mayl
     <style>
       :host {
         display: block;
-        position: relative;
-        margin-bottom: 50px;
+        height: 220px;
       }
 
-      iron-image#profile_img {
-        width: 150px;
-        height: 150px;
-        background: #ddd;
+      .profile img.profile_img {
         border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 16px;
-        
-        --iron-image-placeholder: {
-          background: #aaa;
-        };
+        width:150px;
+        height: 150px;
+        display: inline-block;
+        transition: opacity 1000ms ease-in-out;
+        background-color: #ddd;
+
       }
-      iron-image#background_img {
-        width: 100%;
-        height: 200px;
-        background: #ddd;
-        --iron-image-placeholder: {
-          background: #ddd;
-        };
-      }
-      p{
-        position: absolute;
-        top: 72%;
+      .profile p{
+        margin-left: 20px;
         color: white;
-        left: 182px;
-        font-size: 20px;
-        text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
+        font-size: 25px;
+        text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8); 
+        position: relative;
+        top: 25px;
       }
+
+      .profile{
+        position: relative;
+        top:-90px;
+        left: 16px;
+        display: flex;
+        align-items: flex-start;
+      }
+      
+      iron-image.background_img{
+        width:100%;
+        height: 150px;
+      }      
 
 
     </style>
-    <iron-image id="background_img" src="[[backgroundImg]]" preload fade sizing="cover"></iron-image>
-    <iron-image id="profile_img" src="[[profileImg]]" preload fade sizing="cover"></iron-image>
-    <p>{{pseudo}}</p>
+    
+    <iron-image class ="background_img" src="[[backgroundImg]]" fade preload  sizing="cover"></iron-image>
+
+    <div class="profile">
+      <img class ="profile_img" src="[[profileImg]]" ></img>
+      <p>{{pseudo}}</p>
+    </div>
 
   </template>
 

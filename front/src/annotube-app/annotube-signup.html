@@ -1,0 +1,139 @@
+<!--
+Signin page 
+
+Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
+<link rel="import" href="./shared-styles.html">
+
+<dom-module id="annotube-signup">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+      label{
+        width: 120px;
+        display: inline-block;
+      }
+    </style>
+
+    <!-- 
+      If deploying in a folder replace href="/" with the full path to your site.
+      Such as: href=="http://polymerelements.github.io/polymer-starter-kit"
+    -->
+    <div class="card pd16">
+
+      <h1>Créer un Compte:</h1>
+
+      <granite-alert hidden level="danger">[[alertMessage]]</granite-alert> 
+      <br>     
+      <label for='login'>Login:</label>
+      <input type="text" name="login" id="login" on-keypress="handleChange">
+      <br>
+      <label for='password'>Mot de passe:</label>
+      <input type="password" name="password" id="password" on-keypress="handleChange">
+      <br>
+      <label for='email'>Email:</label>
+      <input type="email" name="email" id="email" on-keypress="handleChange">
+      <br>
+      <paper-button on-tap="signup">connexion</paper-button>
+      <br>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotube-signup',
+
+      properties: {
+        login:{
+          type: String, 
+          notify:true,
+        },
+        password:{
+          type:String,
+          notify:true
+        },
+        email:{
+          type:String,
+          notify:true
+        },
+        alertMessage:{
+          type: String,
+          notify:true
+        }
+      },
+
+      handleChange: function(){
+        this.login = this.$.login.value;
+        this.password = this.$.password.value;
+        this.email = this.$.email.value;
+        this.isValid();
+
+        //console.log("i changed", this.login);
+      },
+      isValid: function(){
+        var is_valid = true;
+        
+        if(this.password== null || this.password.length < 5){
+          is_valid = false;
+          this.alertMessage = "Mot de passe trop court : 6 caractères minimum";
+          this.$$("granite-alert").removeAttribute("hidden");
+        }
+        if(this.login == null || this.login.length < 4){
+          is_valid = false;
+          this.alertMessage = "Pseudo trop court : 5 caractères minimum";
+          this.$$("granite-alert").removeAttribute("hidden");
+        }
+        if(this.login== null || this.login.length > 13){
+          is_valid = false;
+          this.alertMessage = "Pseudo trop long : 12 caractères minimum";
+          this.$$("granite-alert").removeAttribute("hidden");
+        }
+        if (is_valid){
+          this.$$("granite-alert").setAttribute("hidden", "true");
+        }
+        return is_valid;
+      },
+      signup: function(){
+        var that = this;
+
+        if(this.isValid()){
+          var http = new XMLHttpRequest();
+
+          var url = "https://node.edouardg.fr/user";
+          var params = JSON.stringify({
+              email:  that.$.email.value ,              //"pseudo@mail.fr",
+              password:  that.$.password.value ,        //"password",
+              username:  that.$.login.value          //"pseudo"
+          });
+
+          http.open("POST", url, true);
+          http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+          http.send(params);
+
+          http.onreadystatechange = function () {
+              if (http.readyState == 4) {
+                  if (http.status == 200) {
+                      console.log(http.responseText);
+                  } else if (http.status == 400) {
+                      that.alertMessage = JSON.parse(http.responseText).message;
+                      that.$$("granite-alert").removeAttribute("hidden");
+                  }
+              } else if (http.status == 500) {
+                  that.alertMessage = "The server has encountered a situation it doesn't know how to handle.";
+                  that.$$("granite-alert").removeAttribute("hidden");
+              }
+          };
+        }
+        
+      }
+    });
+  </script>
+</dom-module>
