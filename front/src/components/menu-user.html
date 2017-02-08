@@ -23,7 +23,7 @@
 
 
 
-<menu-item-user user-name="[[userName]]" user-profile-img="[[userImg]]"></menu-item-user>
+<menu-item-user user-name="[[userName]]" user-profile-img="[[userImg]]" user-id="[[userId]]"></menu-item-user>
 <menu-item name="myannotatedvideos" href="/myannotatedvideos" icon="av:video-library" text="Mes vidéos annotées"></menu-item>
 <menu-item name="myfavoritesvideos" href="/myfavoritesvideos" icon="icons:favorite" text="Mes favoris Anno'Tubes"></menu-item>
 <!--menu-item-badge name="notifications" href="/notifications" icon="social:notifications" text="Notifications" nb-notifications="[[nbNotifications]]"></menu-item-badge-->
@@ -46,6 +46,8 @@
             },
             userImg: {
                 type: String,
+                value: "/assets/default/default_profile.svg"
+
             },
             userId:{
                 type: String,
@@ -71,7 +73,7 @@
                     if (http.status == 200) {
                         var res = JSON.parse(http.response);
                         that.userName = res.username;
-                        that.userImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                        //that.userImg = res.profileImg;
                     }
                 }
             };
