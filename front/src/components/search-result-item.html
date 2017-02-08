@@ -107,13 +107,39 @@
             }
         },
         ready: function () {
+            this.getNumberOfVersion(this.youtubeItem.id.videoId);
             var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
             var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
             var date = new Date(this.youtubeItem.snippet.publishedAt);
             this.youtubeItem.snippet.publishedAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + date.getMinutes();
             this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
+        },
+        getNumberOfVersion: function(param){
+            console.log(param);
+            var that = this;
+            var http = new XMLHttpRequest();
+            var url = "https://node.edouardg.fr/video";
+
+            http.open("GET", url, true);
+            // http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+            // http.withCredentials = true;
+            http.send();
+
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status == 200) {
+                        that.backResponse(http.response);
+                    } else {
+                         console.log(http.response);
+                    }
+                } else {
+                    console.log(http.response);
+                }
+            };
+        },
+        backResponse: function(result){
+            console.log(result);
         }
     });
-
 </script>
 </dom-module>

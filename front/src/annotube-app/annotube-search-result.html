@@ -99,6 +99,63 @@ By: Tom
       this.nextPageTk = result.detail.response.nextPageToken;
       this.prevPageTk = result.detail.response.prevPageToken;
     }
+    // testCreationVideo: function(param){
+    //   var http = new XMLHttpRequest();
+    //   var url = "https://node.edouardg.fr/video";
+    //   var params = JSON.stringify({
+    //     name: param.snippet.title,
+    //     url: param.id.videoId,
+    //     thunbmail: param.snippet.thumbnails.medium.url
+    //   });
+
+    //   http.open("POST", url, true);
+    //   http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    //   http.withCredentials = true;
+    //   http.send(params);
+
+    //   http.onreadystatechange = function () {
+    //     if (http.readyState == 4) {
+    //       if (http.status == 200) {
+    //           console.log(http.response);
+    //         } else if (http.status == 400) {
+    //           console.log('no');
+    //       }
+    //     } else if (http.status == 500) {
+    //     }
+    //   };
+    // }
+
+    // testCreationAnnotation: function(){
+    //   var http = new XMLHttpRequest();
+    //   var url = "https://node.edouardg.fr/annotation";
+    //   var params = JSON.stringify({
+    //     video: "58988f725979a510347a7e1d",
+    //     time_start: 20,
+    //     time_end: 36,
+    //     text: "annotation",
+    //     shape: {
+    //       type: "triangle",
+    //       position_x: 1,
+    //       position_y: 4
+    //     }
+    //   });
+
+    //   http.open("POST", url, true);
+    //   http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    //   http.withCredentials = true;
+    //   http.send(params);
+
+    //   http.onreadystatechange = function () {
+    //     if (http.readyState == 4) {
+    //       if (http.status == 200) {
+    //           console.log(http.response);
+    //         } else if (http.status == 400) {
+    //           console.log('no');
+    //       }
+    //     } else if (http.status == 500) {
+    //     }
+    //   };
+    // }
   });
 </script>
 </dom-module>
