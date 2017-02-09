@@ -27,7 +27,7 @@ Mayl
       If deploying in a folder replace href="/" with the full path to your site.
       Such as: href=="http://polymerelements.github.io/polymer-starter-kit"
     -->
-    <div class="card pd16">
+    <div class="card pd16" on-keypress="isEnterKey">
 
       <h1>Se Connecter:</h1>
 
@@ -74,7 +74,6 @@ Mayl
         var that = this;
         var http = new XMLHttpRequest();
         var url = "https://node.edouardg.fr/login";
-        var token;
         var params = JSON.stringify({
             password: that.$.password.value,  //"password",
             username: that.$.login.value      //"pseudo"
@@ -100,6 +99,11 @@ Mayl
                 that.$$("granite-alert").removeAttribute('hidden');
             }
         };
+      },
+      isEnterKey : function(key){
+        if (key.code == "Enter"){
+          this.signin();
+        }
       }
 
 

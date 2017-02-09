@@ -27,7 +27,7 @@ Mayl
       If deploying in a folder replace href="/" with the full path to your site.
       Such as: href=="http://polymerelements.github.io/polymer-starter-kit"
     -->
-    <div class="card pd16">
+    <div class="card pd16" on-keypress="isEnterKey">
 
       <h1>Créer un Compte:</h1>
 
@@ -121,7 +121,8 @@ Mayl
           http.onreadystatechange = function () {
               if (http.readyState == 4) {
                   if (http.status == 200) {
-                      console.log(http.responseText);
+                      //console.log(http.responseText);
+                      document.location ="/signin";
                   } else if (http.status == 400) {
                       that.alertMessage = JSON.parse(http.responseText).message;
                       that.$$("granite-alert").removeAttribute("hidden");
@@ -132,7 +133,11 @@ Mayl
               }
           };
         }
-        
+      },
+      isEnterKey : function(key){
+        if (key.code == "Enter"){
+          this.signup();
+        }
       }
     });
   </script>

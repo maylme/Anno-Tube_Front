@@ -1,0 +1,114 @@
+<!--
+Notification page
+
+By: Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../components/user-banner.html">
+<link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<link rel="import" href="./shared-styles.html">
+<link rel="import" href="../components/profile-header.html">
+
+<dom-module id="annotube-myvideos">
+  <template>
+    <style include="shared-styles">
+      
+  
+    </style>
+
+   <div class="card">
+    <profile-header 
+    profile-pseudo = "[[profilePseudo]]"
+    profile-img = "[[profileImg]]"
+    profile-website = "[[profileWebsite]]"
+    profile-description = "[[profileDescription]]"
+    profile-youtube_chanel = "[[profileYoutube_chanel]]"
+    profile-background_img = "[[profileBackground_img]]"
+    profile-id = "[[profileId]]"
+    ></profile-header>
+   </div>
+   
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotube-myvideos',
+
+      properties: {
+        profilePseudo: {
+          type: String,
+        },
+        profileImg: {
+          type: String,
+          value: "/assets/default/default_profile.svg"
+        },
+        profileWebsite: {
+          type: String,
+          value: false
+        },
+        profileDescription: {
+          type: String,
+        },
+        profileYoutube_chanel: {
+          type: String,
+        },
+        profileId:{
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_userIdLoaded'
+        },
+        profileBackground_img: {
+          type: String,
+          value:"http://htmlcolorcodes.com/assets/images/html-color-codes-color-tutorials-hero-00e10b1f.jpg",
+        },
+      },
+      _userIdLoaded : function(){
+        console.log("composant", this.profileId);
+        var that = this;
+        var http = new XMLHttpRequest();
+        var url = "https://node.edouardg.fr/user/"+this.profileId;
+
+        http.open("GET", url, true);
+        http.withCredentials = true;
+        http.send();
+        http.onreadystatechange = function () {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                    var res = JSON.parse(http.response);
+                    that.profilePseudo = res.username;
+                    //that.profileImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                    console.log(res);
+                    if (res.website){
+                      that.profileWebsite= res.website;
+                    }
+                    if (res.description){
+                      that.profileDescription= res.description;
+                    }
+                    if (res.youtube_chanel){
+                      that.profileYoutube_chanel= res.youtube_chanel;
+                    }                    
+                }
+            }
+        };
+      },
+      openTab: function(url){
+        console.log(url.target.id);
+        if (url.target.id =="website"){
+          window.open(this.profileWebsite,'_blank');
+        }
+        if (url.target.id =="youtube"){
+          window.open(this.profileYoutube_chanel,'_blank');
+        }
+      }
+
+    });
+  </script>
+</dom-module>
