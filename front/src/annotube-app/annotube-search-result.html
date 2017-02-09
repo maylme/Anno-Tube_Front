@@ -14,148 +14,152 @@ By: Tom
   <template>
     <style include="shared-styles">
       .form-wrapper {
-          width: 40%;
-          height: 40px;
-          min-width: 300px;
-          margin: 1% auto;
-          box-shadow: 2px 2px 5px lightgray ; 
+        width: 40%;
+        height: 40px;
+        min-width: 300px;
+        margin: 1% auto;
+        box-shadow: 2px 2px 5px lightgray;
       }
-
-      .nb-result{
+      
+      .nb-result {
         float: right;
         margin-right: 15px;
       }
-
-      .prevNext{
+      
+      .prevNext {
         display: flex;
       }
-      .divPrev{
-       margin-right: auto;
-       padding: 10px;
-     }
-     .divNext{
-       margin-left: auto;
-       padding: 10px;
-     }
+      
+      .divPrev {
+        margin-right: auto;
+        padding: 10px;
+      }
+      
+      .divNext {
+        margin-left: auto;
+        padding: 10px;
+      }
     </style>
-<iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video","relevanceLanguage":"fr-fr", "maxResults":"10"}'
-  handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
+    <iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video","relevanceLanguage":"fr-fr", "maxResults":"10"}'
+      handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
 
-<div class="card" style="padding-top: 1px;">
-<form class="form-wrapper" method="get" target="_self">
-  <search-bar></search-bar>
-</form>
-<p class="nb-result">Environ [[response.pageInfo.totalResults]] résultats</p>
+      <div class="card" style="padding-top: 1px;">
+        <form class="form-wrapper" method="get" target="_self">
+          <search-bar></search-bar>
+        </form>
+        <p class="nb-result">Environ [[response.pageInfo.totalResults]] résultats</p>
 
-<template is="dom-repeat" items="[[response.items]]">
-  <search-result-item youtube-item="{{item}}"></search-result-item>
-</template>
-<div class="prevNext">
-  <div class="divPrev" align="left">
-    <template is="dom-if" if="[[!response.pageInfo.totalResults]]">
-      <p>Il n'y a aucun résultat pour cette recherche</p>
-    </template>
-    <template is="dom-if" if="[[prevPageTk]]">
-      <paper-button raised id="prevPageBt" on-tap="reload">&larr; Précédente</paper-button>
-    </template>
-  </div>
-  <div class="divNext" align="right">
-    <template is="dom-if" if="[[nextPageTk]]">
-      <paper-button raised id="nextPageBt" on-tap="reload">Suivante &rarr;</paper-button>
-    </template>
-  </div>
-</div>
-</div>
+        <template is="dom-repeat" items="[[response.items]]">
+          <search-result-item youtube-item="{{item}}"></search-result-item>
+        </template>
+        <div class="prevNext">
+          <div class="divPrev" align="left">
+            <template is="dom-if" if="[[!response.pageInfo.totalResults]]">
+              <p>Il n'y a aucun résultat pour cette recherche</p>
+            </template>
+            <template is="dom-if" if="[[prevPageTk]]">
+              <paper-button raised id="prevPageBt" on-tap="reload">&larr; Précédente</paper-button>
+            </template>
+          </div>
+          <div class="divNext" align="right">
+            <template is="dom-if" if="[[nextPageTk]]">
+              <paper-button raised id="nextPageBt" on-tap="reload">Suivante &rarr;</paper-button>
+            </template>
+          </div>
+        </div>
+      </div>
 
-</template>
+  </template>
 
-<script>
-  Polymer({
-    is: 'annotube-search-result',
+  <script>
+    Polymer({
+      is: 'annotube-search-result',
 
-    properties: {
-      nextPageTk: {
-        type: String,
-        notify: true
+      properties: {
+        nextPageTk: {
+          type: String,
+          notify: true
+        },
+        prevPageTk: {
+          type: String,
+          notify: true
+        }
       },
-      prevPageTk: {
-        type: String,
-        notify: true
-      }
-    },
-    ready: function () {
-      this.$.ajax.params.q = window.location.search.substr(1).split("=")[1];
-      this.$.ajax.generateRequest();
-    },
-    reload: function (e) {
-      if (e.target.id == "nextPageBt") {
-        this.$.ajax.params.pageToken = this.nextPageTk;
-      } else {
-        this.$.ajax.params.pageToken = this.prevPageTk;
-      }
-      this.$.ajax.generateRequest();
-    },
-    youtubeResponse: function (result) {
-      this.nextPageTk = result.detail.response.nextPageToken;
-      this.prevPageTk = result.detail.response.prevPageToken;
-    }
-    // testCreationVideo: function(param){
-    //   var http = new XMLHttpRequest();
-    //   var url = "https://node.edouardg.fr/video";
-    //   var params = JSON.stringify({
-    //     name: param.snippet.title,
-    //     url: param.id.videoId,
-    //     thunbmail: param.snippet.thumbnails.medium.url
-    //   });
+      ready: function () {
+        this.$.ajax.params.q = window.location.search.substr(1).split("=")[1];
+        this.$.ajax.generateRequest();
+      },
+      reload: function (e) {
+        if (e.target.id == "nextPageBt") {
+          this.$.ajax.params.pageToken = this.nextPageTk;
+        } else {
+          this.$.ajax.params.pageToken = this.prevPageTk;
+        }
+        this.$.ajax.generateRequest();
+      },
+      youtubeResponse: function (result) {
+        this.nextPageTk = result.detail.response.nextPageToken;
+        this.prevPageTk = result.detail.response.prevPageToken;
+      },
 
-    //   http.open("POST", url, true);
-    //   http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    //   http.withCredentials = true;
-    //   http.send(params);
+      // testCreationVideo: function(param){
+      //   console.log(param);
+      //   var http = new XMLHttpRequest();
+      //   var url = "https://node.edouardg.fr/video";
+      //   var params = JSON.stringify({
+      //     name: param.snippet.title,
+      //     youtube: param.id.videoId,
+      //     thunbmail: param.snippet.thumbnails.medium.url
+      //   });
 
-    //   http.onreadystatechange = function () {
-    //     if (http.readyState == 4) {
-    //       if (http.status == 200) {
-    //           console.log(http.response);
-    //         } else if (http.status == 400) {
-    //           console.log('no');
-    //       }
-    //     } else if (http.status == 500) {
-    //     }
-    //   };
-    // }
+      //   http.open("POST", url, true);
+      //   http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+      //   http.withCredentials = true;
+      //   http.send(params);
 
-    // testCreationAnnotation: function(){
-    //   var http = new XMLHttpRequest();
-    //   var url = "https://node.edouardg.fr/annotation";
-    //   var params = JSON.stringify({
-    //     video: "58988f725979a510347a7e1d",
-    //     time_start: 20,
-    //     time_end: 36,
-    //     text: "annotation",
-    //     shape: {
-    //       type: "triangle",
-    //       position_x: 1,
-    //       position_y: 4
-    //     }
-    //   });
+      //   http.onreadystatechange = function () {
+      //     if (http.readyState == 4) {
+      //       if (http.status == 200) {
+      //           console.log(http.response);
+      //         } else if (http.status == 400) {
+      //           console.log('no');
+      //       }
+      //     } else if (http.status == 500) {
+      //     }
+      //   };
+      // }
 
-    //   http.open("POST", url, true);
-    //   http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    //   http.withCredentials = true;
-    //   http.send(params);
+      // testCreationAnnotation: function(){
+      //   var http = new XMLHttpRequest();
+      //   var url = "https://node.edouardg.fr/annotation";
+      //   var params = JSON.stringify({
+      //     video: "58988f725979a510347a7e1d",
+      //     time_start: 20,
+      //     time_end: 36,
+      //     text: "annotation",
+      //     shape: {
+      //       type: "triangle",
+      //       position_x: 1,
+      //       position_y: 4
+      //     }
+      //   });
 
-    //   http.onreadystatechange = function () {
-    //     if (http.readyState == 4) {
-    //       if (http.status == 200) {
-    //           console.log(http.response);
-    //         } else if (http.status == 400) {
-    //           console.log('no');
-    //       }
-    //     } else if (http.status == 500) {
-    //     }
-    //   };
-    // }
-  });
-</script>
+      //   http.open("POST", url, true);
+      //   http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+      //   http.withCredentials = true;
+      //   http.send(params);
+
+      //   http.onreadystatechange = function () {
+      //     if (http.readyState == 4) {
+      //       if (http.status == 200) {
+      //           console.log(http.response);
+      //         } else if (http.status == 400) {
+      //           console.log('no');
+      //       }
+      //     } else if (http.status == 500) {
+      //     }
+      //   };
+      // }
+    });
+  </script>
 </dom-module>

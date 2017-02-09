@@ -5,161 +5,169 @@
 <dom-module id="search-result-item">
     <template>
         <style>
-            .resultCell{
+            .resultCell {
                 margin: 15px 15px 0px 15px;
             }
-            .youtubeData{
+            
+            .youtubeData {
                 display: inline-block;
                 width: 100%;
             }
-            .thumbnails{
+            
+            .thumbnails {
                 width: 33%;
                 --iron-image-width: 100%;
                 --iron-image-height: auto;
                 float: left;
                 border-radius: 3px;
             }
-            .videoInformations{
+            
+            .videoInformations {
                 width: 65%;
                 margin: 0 1%;
                 float: left;
             }
-            paper-badge{
-                --paper-badge-width:30px;
+            
+            paper-badge {
+                cursor: pointer;
+                --paper-badge-width: 30px;
                 --paper-badge-height: 30px;
                 --paper-badge-margin-left: -10px;
                 --paper-badge-margin-bottom: -10px;
                 --paper-badge-background: darkred;
             }
-
-            .videoTitle{
-                font:bold 16pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+            
+            .videoTitle {
+                font: bold 16pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 color: #424242;
                 margin: 0px;
             }
-            .videoAuthorDate{
-                font:normal 11pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+            
+            .videoAuthorDate {
+                font: normal 11pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 margin: 5px 0px 0px 0px;
             }
-            .videoDescription{
-                font:normal 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+            
+            .videoDescription {
+                font: normal 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 color: #424242;
                 margin: 5px 0px 0px 0px;
             }
-
+            
             @media screen and (max-width: 1080px) {
-                .videoTitle{
-                    font:bold 14pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoTitle {
+                    font: bold 14pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
-                .videoAuthorDate{
-                    font:normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoAuthorDate {
+                    font: normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
-                .videoDescription{
-                    font:normal 12pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoDescription {
+                    font: normal 12pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
             }
+            
             @media screen and (max-width: 860px) {
-                .videoTitle{
-                    font:bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoTitle {
+                    font: bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
-                .videoAuthorDate{
-                    font:normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoAuthorDate {
+                    font: normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
-                .videoDescription{
-                    font:normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoDescription {
+                    font: normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
             }
+            
             @media screen and (max-width: 460px) {
-                .videoTitle{
-                    font:bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoTitle {
+                    font: bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                     margin: 5px 0 0 0;
                 }
-                .videoAuthorDate{
-                    font:normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+                .videoAuthorDate {
+                    font: normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
-                .videoDescription{
+                .videoDescription {
                     display: none;
                 }
-                .thumbnails{
+                .thumbnails {
                     width: 100%;
                     --iron-image-width: 100%;
                     --iron-image-height: auto;
                     border-radius: 3px;
                 }
-                .videoInformations{
+                .videoInformations {
                     width: 100%;
                     margin: 0 1%;
                 }
             }
         </style>
 
-<div class="resultCell">
-    <div id="youtubeVideo" class="youtubeData">
-        <iron-image class="thumbnails" src="{{youtubeItem.snippet.thumbnails.medium.url}}"></iron-image>
-        <div class="videoInformations">
-            <p class="videoTitle">{{youtubeItem.snippet.title}}</p>
-            <p id="authorDate" class="videoAuthorDate">{{youtubeItem.snippet.channelTitle}} - {{youtubeItem.snippet.publishedAt}}</p>
-            <p class="videoDescription">{{youtubeItem.snippet.description}}</p>
+        <div class="resultCell">
+            <div id="youtubeVideo" class="youtubeData">
+                <iron-image class="thumbnails" src="{{youtubeItem.snippet.thumbnails.medium.url}}"></iron-image>
+                <div class="videoInformations">
+                    <p class="videoTitle">{{youtubeItem.snippet.title}}</p>
+                    <p id="authorDate" class="videoAuthorDate">{{youtubeItem.snippet.channelTitle}} - {{youtubeItem.snippet.publishedAt}}</p>
+                    <p class="videoDescription">{{youtubeItem.snippet.description}}</p>
+                </div>
+            </div>
+            <template is="dom-if" if="[[nbVersions]]">
+                <paper-badge for="youtubeVideo" label="[[nbVersions]]" on-tap="showVersions"></paper-badge>
+            </template>
+            <hr />
         </div>
-    </div>
-    <template is="dom-if" if="[[nbVersions]]">
-        <paper-badge for="youtubeVideo" label="[[nbVersions]]"></paper-badge>
     </template>
-    <hr />
-</div>
-</template>
 
-<script>
-    Polymer({
-        is: 'search-result-item',
-        properties: {
-            youtubeItem: {
-                type: Object,
-                notify: true,
-            },
-            nbVersions: {
-                type: Number,
-                notify: true,
-            }
-        },
-        ready: function () {
-            this.getNumberOfVersion(this.youtubeItem.id.videoId);
-            var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-            var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-            var date = new Date(this.youtubeItem.snippet.publishedAt);
-            this.youtubeItem.snippet.publishedAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + date.getMinutes();
-            this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
-        },
-        getNumberOfVersion: function(param){
-            var that = this;
-            var http = new XMLHttpRequest();
-            var url = "https://node.edouardg.fr/video";
-
-            http.open("GET", url, true);
-            http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-            http.withCredentials = true;
-            http.send();
-
-            http.onreadystatechange = function () {
-                if (http.readyState == 4) {
-                    if (http.status == 200) {
-                        var matchVideo = [];
-                        var answer = JSON.parse(http.response);
-                        for(var i = 0; i < answer.length; i++){
-                            if(answer[i].url == param){
-                                matchVideo.push(answer[i]);
-                            }
-                        }
-                        that.backResponse(matchVideo);
-                    } else {
-                         console.log(http.response);
-                    }
+    <script>
+        Polymer({
+            is: 'search-result-item',
+            properties: {
+                youtubeItem: {
+                    type: Object,
+                    notify: true,
+                },
+                versionItems: {
+                    type: Object,
+                    notify: true,
+                },
+                nbVersions: {
+                    type: Number,
+                    notify: true,
                 }
-            };
-        },
-        backResponse: function(result){
-            this.nbVersions = result.length;
-        }
-    });
-</script>
+            },
+            ready: function () {
+                this.getNumberOfVersion(this.youtubeItem.id.videoId);
+                var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+                var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+                var date = new Date(this.youtubeItem.snippet.publishedAt);
+                this.youtubeItem.snippet.publishedAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+                this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
+            },
+            showVersions: function (event) {
+                console.log(this.versionItems);
+                //console.log(this.parentNode);
+            },
+            getNumberOfVersion: function (param) {
+                var that = this;
+                var http = new XMLHttpRequest();
+                var url = "https://node.edouardg.fr/video/youtube/";
+
+                http.open("GET", url + param, true);
+                http.send();
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200) {
+                            var answer = JSON.parse(http.response);
+                            that.nbVersions = answer.length;
+                            that.versionItems = answer;
+                        } else {
+                            // console.log(http.response);
+                        }
+                    } else {
+                        // console.log(http.response);
+                    }
+                };
+            }
+        });
+    </script>
 </dom-module>
