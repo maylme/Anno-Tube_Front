@@ -18,7 +18,7 @@ By: Mayl
       :host {
         display: block;
       }
-      
+
       video-display {
           position: relative;
           width: 60%;
@@ -57,8 +57,9 @@ By: Mayl
         }
       },
       ready: function(){
-          var url = "https://node.edouardg.fr/comment";
-          var param = "video=" + this.videoId; //videoID
+        // isYoutube == false
+          var url = "https://node.edouardg.fr/video/" + this.videoId;
+          var param = "";
           var res = [];
 
           var http = new XMLHttpRequest();
