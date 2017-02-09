@@ -14,12 +14,15 @@ By: Mayl
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="./shared-styles.html">
+<link rel="import" href="../components/video-thumbnail.html">
 <link rel="import" href="../components/profile-header.html">
 
 <dom-module id="annotube-myvideos">
   <template>
     <style include="shared-styles">
-      
+      .video_list{
+        border-top: dashed lightgrey 1px;
+      }
   
     </style>
 
@@ -33,6 +36,14 @@ By: Mayl
     profile-background_img = "[[profileBackground_img]]"
     profile-id = "[[profileId]]"
     ></profile-header>
+
+    <div class="video_list pd16">
+      <template is="dom-repeat" items="{{videos}}" as="video">
+        <video-thumbnail video-obj = "{{video}}"></video-thumbnail>
+      </template>
+
+    </div>
+
    </div>
    
   </template>
@@ -69,6 +80,10 @@ By: Mayl
           type: String,
           value:"http://htmlcolorcodes.com/assets/images/html-color-codes-color-tutorials-hero-00e10b1f.jpg",
         },
+        videos: {
+          type: Object,
+          notify: true,
+        }
       },
       _userIdLoaded : function(){
         console.log("composant", this.profileId);
@@ -85,9 +100,9 @@ By: Mayl
                     var res = JSON.parse(http.response);
                     that.profilePseudo = res.username;
                     //that.profileImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
-                    console.log(res);
                     if (res.website){
                       that.profileWebsite= res.website;
+                      that.getVideos();
                     }
                     if (res.description){
                       that.profileDescription= res.description;
@@ -107,6 +122,24 @@ By: Mayl
         if (url.target.id =="youtube"){
           window.open(this.profileYoutube_chanel,'_blank');
         }
+      },
+      getVideos: function(){
+         var that = this;
+        var http = new XMLHttpRequest();
+        var url = "https://node.edouardg.fr/user/me/video";
+
+        http.open("GET", url, true);
+        http.withCredentials = true;
+        http.send();
+        http.onreadystatechange = function () {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                    var res = JSON.parse(http.response);
+                    console.log(res); 
+                    that.videos = res;                    
+                }
+            }
+        };
       }
 
     });
