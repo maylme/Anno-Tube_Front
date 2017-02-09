@@ -5,6 +5,11 @@ By: Mayl
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../components/video-display.html">
+<link rel="import" href="../components/video-info.html">
+<link rel="import" href="../components/video-comment.html">
+<link rel="import" href="./shared-styles.html">
 
 
 <dom-module id="annotube-video">
@@ -13,10 +18,23 @@ By: Mayl
       :host {
         display: block;
       }
+      
+      video-display {
+          position: relative;
+          width: 60%;
+      }
+
+      video-comment {
+          position: relative;
+          width: 60%;
+      }
     </style>
-    <div>
-      video id = [[videoId]]
-      is youtube = [[isYoutube]]
+    <div class="card pd16">
+      <video-display class="video" videoId="{{videoId}}"></video-display>
+      <video-info videoId="{{videoId}}" isYoutube="{{isYoutube}}"></video-info>
+      <template is="dom-repeat" items="{{comments}}">
+        <video-comment videoId="{{videoId}}" com-id="{{item._id}}"></video-comment>
+      </template>
     </div>
    
   </template>
@@ -38,6 +56,30 @@ By: Mayl
           value: false
         }
       },
+      ready: function(){
+          var url = "https://node.edouardg.fr/comment";
+          var param = "video=" + this.videoId; //videoID
+          var res = [];
+
+          var http = new XMLHttpRequest();
+          http.open("GET", url, true);
+          http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+          http.withCredentials = true;
+          http.send(param);
+
+          http.onreadystatechange = function () {
+              if (http.readyState == 4) {
+                  if (http.status == 200) {
+                      console.log(http.responseText);
+                      this.comments = http.responseText;
+                  } else if (http.status == 400) {
+                      alert(JSON.parse(http.responseText).message);
+                  }
+              } else if (http.status == 500) {
+                  console.log("The server has encountered a situation it doesn't know how to handle.");
+              }
+          }
+      }
     });
 
 
