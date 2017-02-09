@@ -3,10 +3,11 @@
 <link rel="import" href="../components/video-display.html">
 <link rel="import" href="../components/video-info.html">
 <link rel="import" href="../components/video-comment.html">
+<link rel="import" href="./shared-styles.html">
 
 <dom-module id="annotube-video-display">
     <template>
-        <style>
+        <style include="shared-styles">
             :host {
                 display: block;
                 padding: 10px;
@@ -22,23 +23,51 @@
                 width: 60%;
             }
 
-            video-info {
-
-            }
         </style>
 
-        <video-display class="video"></video-display>
-        <video-info ></video-info>
-        <!--<template is="dom-repeat" items={{items}} as="stuff">  
-            ...
-        </template>-->
-        <video-comment></video-comment>
+        <div class="card pd16">
+            <video-display class="video"></video-display>
+            <video-info ></video-info>
+            <template is="dom-repeat" items="{{comments}}">
+                <video-comment com-id="{{item._id}}"></video-comment>
+            </template>
+        </div>
 
     </template>
 
     <script>
         Polymer({
-            is: 'annotube-video-display'
+            is: 'annotube-video-display',
+            /*properties: {
+                comments: {
+
+                }
+
+            }*/
+            ready: function(){
+
+                var url = "https://node.edouardg.fr/comment";
+                var param = ""; //videoID
+                var res = [];
+
+                http.open("GET", url, true);
+                http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                http.withCredentials = true;
+                http.send(param);
+
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200) {
+                            console.log(http.responseText);
+                            this.comments = http.responseText;
+                        } else if (http.status == 400) {
+                            alert(JSON.parse(http.responseText).message);
+                        }
+                    } else if (http.status == 500) {
+                        console.log("The server has encountered a situation it doesn't know how to handle.");
+                    }
+                }
+            }
         });
     </script>
 </dom-module>
