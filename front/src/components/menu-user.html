@@ -21,13 +21,15 @@
         }
     </style>
 
-<menu-item-user user-name="[[userName]]" user-profile-img="[[userImg]]"></menu-item-user>
+
+
+<menu-item-user user-name="[[userName]]" user-profile-img="[[userImg]]" user-id="[[userId]]"></menu-item-user>
 <menu-item name="myannotatedvideos" href="/myannotatedvideos" icon="av:video-library" text="Mes vidéos annotées"></menu-item>
 <menu-item name="myfavoritesvideos" href="/myfavoritesvideos" icon="icons:favorite" text="Mes favoris Anno'Tubes"></menu-item>
 <!--menu-item-badge name="notifications" href="/notifications" icon="social:notifications" text="Notifications" nb-notifications="[[nbNotifications]]"></menu-item-badge-->
 <menu-item name="Paramètres" href="/options" icon="icons:settings" text="Paramètres"></menu-item>
 <div class="signOut">
-    <a class="signOut" onclick="signOut();" href="#">Se déconnecter</a>
+    <a class="signOut" on-tap="signOut" href="#">Se déconnecter</a>
 </div>
 </template>
 
@@ -38,24 +40,65 @@
         properties: {
             userName: {
                 type: String,
-                notify: true
             },
             nbNotifications: {
                 type: Number,
-                notify: true
             },
             userImg: {
                 type: String,
-                notify: true
+                value: "/assets/default/default_profile.svg"
+
+            },
+            userId:{
+                type: String,
+                notify: true,
+                reflectToAttribute: true,
+                observer: '_userIdLoaded'
             }
         },
         ready : function(){
+            //console.log("reponse ready", this.userId);
+        },
+        _userIdLoaded: function(newValue, oldValue){
             var that = this;
-            setTimeout(function(){ //part to do in ajax request in the server
-                that.userName = "User Test";
-                that.userImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
-                that.nbNotifications = 5;
-            }, 1000);   
+            var http = new XMLHttpRequest();
+            console.log("newValue", newValue, oldValue, this.userId);
+            var url = "https://node.edouardg.fr/user/"+this.userId;
+
+            http.open("GET", url, true);
+            http.withCredentials = true;
+            http.send();
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status == 200) {
+                        var res = JSON.parse(http.response);
+                        that.userName = res.username;
+                        //that.userImg = res.profileImg;
+                    }
+                }
+            };
+        },
+        signOut: function(){
+            var http = new XMLHttpRequest();
+
+            var that = this;
+            var url = "https://node.edouardg.fr/logout";
+            http.open("GET", url, true);
+            http.send();
+
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status == 200) {
+                        console.log(http.responseText);
+                        document.location = "/";
+                    } else if (http.status == 400) {
+                        console.log(JSON.parse(http.responseText).message);
+                        that.$$("granite-alert").removeAttribute("hidden");
+                    }
+                } else if (http.status == 500) {
+                   console.log("The server has encountered a situation it doesn't know how to handle.");
+                }
+            };
         }
     });
 </script>

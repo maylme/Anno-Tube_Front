@@ -3,7 +3,7 @@
 <!-- shared styles for all views -->
 <dom-module id="shared-styles">
   <template>
-    <style>
+    <style is="custom-style">
       .card {
         margin: 24px;
         color: #757575;
@@ -22,6 +22,9 @@
       }
       .pd16{
         padding:16px;
+      }
+      .relative{
+        position: relative;
       }
 
       .circle {
@@ -45,6 +48,24 @@
         margin: 16px 0;
         color: #212121;
         font-size: 22px;
+      }
+
+      paper-button{
+        --paper-button: {
+          background: darkred;
+          color: white;
+        };
+        --paper-button-ink-color: white;
+        margin-top:20px;
+      }
+
+      paper-tooltip{
+        --paper-tooltip-opacity : 1;
+         --paper-tooltip: {
+          font-size: 17px;
+          text-align: center;
+        }
+
       }
     </style>
   </template>

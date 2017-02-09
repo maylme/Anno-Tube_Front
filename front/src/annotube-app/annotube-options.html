@@ -9,6 +9,8 @@ By: Mayl
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../components/user-banner.html">
 <link rel="import" href="./shared-styles.html">
+<link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
+
 
 <dom-module id="annotube-options">
   <template>
@@ -20,10 +22,19 @@ By: Mayl
       label{
         width: 150px;
         display: inline-block;
+        vertical-align: top
       }
 
-      br{
-        margin:10px;
+      .field{
+        margin-top:20px;
+      }
+
+      .control{
+        display: none;
+      }
+      granite-alert{
+        display: inline-block;
+        max-width:300px;
       }
       paper-button{
         --paper-button: {
@@ -45,16 +56,38 @@ By: Mayl
       <h1>Options du compte</h1>
         <paper-spinner id = "spinner" alt="Chargement des paramètres" active></paper-spinner>
         <div id="user_infos" hidden>
-          <label for= "pseudo">Pseudo</label>
-          <input id="pseudo" type="text" name="pseudo" value ="[[user_pseudo]]">
-          <br>
-          <label for = "password">Mot de passe</label>
-          <input id="password" type="password" name="password" value ="[[user_password]]">
-          <br>
-          <label for = "email">E-mail</label>
-          <input id="email" type="email" name="email" value ="[[user_email]]">
-          <br>
-          <paper-button on-tap="changerNom">Sauvegarder</paper-button>
+          <div class = "field">
+            <label for= "pseudo">Pseudo</label>
+            <span id="pseudo" >[[user_pseudo]]</span>
+          </div>
+          <div class = "field">
+            <label for = "password">Mot de passe</label>
+            <input id="password" type="password" name="password" on-focusout="controlPassword">
+          </div>
+          <div class = "field password control">
+            <label for = "password2">Re-tapez le nouveau mot de passe</label>
+            <input id="password2" type="password" name="password2" on-focusout="controlPassword">
+            <granite-alert hidden level="danger">[[passwordMessage]]</granite-alert> 
+          </div>
+          <div class = "field">
+            <label for = "email">E-mail</label>
+            <input id="email" type="email" name="email" value ="[[user_email]]">
+          </div>
+          <div class = "field description">
+            <label for = "description">Description</label>
+            <textarea  rows="10" cols="40" id="description" type="text" name="description" value ="[[user_description]]" on-keydown="controlDescription"></textarea>
+            <granite-alert hidden level="danger">[[descriptionMessage]]</granite-alert>
+          </div>
+          <div class = "field">
+            <label for = "website">Site Web</label>
+            <input id="website" type="text" name="website" value ="[[user_website]]">
+          </div>
+          <div class = "field">
+            <label for = "youtube_chanel">Chaine Youtube</label>
+            <input id="youtube_chanel" type="text" name="youtube_chanel" value ="[[user_youtube_chanel]]">
+          </div>
+          <paper-button on-tap="saveChange">Sauvegarder</paper-button>
+          <granite-alert class="notify" hidden level="success">[[notifyMessage]]</granite-alert>
           <br>
         </div>
      </div>
@@ -69,29 +102,182 @@ By: Mayl
         user_pseudo: {
           type: String,
         },
+        user_password: {
+          type: String,
+          value: "Les mots de passe doivent être identiques"
+        },
         user_email: {
           type: String,
-          value:"user@email.test",
         },
         user_profile_img: {
           type: String,
+          value: "/assets/default/default_profile.svg"
+        },
+        user_website: {
+          type: String,
+        },
+        user_description: {
+          type: String,
+        },
+        user_youtube_chanel: {
+          type: String,
+        },
+        userId:{
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_userIdLoaded'
         },
         user_background_img: {
           type: String,
           value:"http://htmlcolorcodes.com/assets/images/html-color-codes-color-tutorials-hero-00e10b1f.jpg",
         },
+        passwordMessage:{
+          type: String,
+        },
+        descriptionMessage : {
+          type: String,
+          value: "Vous ne devez pas dépasser 400 caractères"
+        },
+        notifyMessage:{
+          type: String,
+        }
       },
-      ready : function(){
-        that = this;
-        setTimeout(function(){  //part to do in ajax request in the server
-          that.user_pseudo = "User Test";
-          that.user_profile_img = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
-          that.$$("paper-spinner").removeAttribute("active");
-          that.$$("paper-spinner").setAttribute("hidden", "true");
-          that.$$("#user_infos").removeAttribute("hidden");
-        }, 2000);
-      }
+      _userIdLoaded : function(){
+        var that = this;
+        var http = new XMLHttpRequest();
+        var url = "https://node.edouardg.fr/user/"+this.userId;
 
+        http.open("GET", url, true);
+        http.withCredentials = true;
+        http.send();
+        http.onreadystatechange = function () {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                    var res = JSON.parse(http.response);
+                    that.user_pseudo = res.username;
+                    //that.user_profile_img = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                    that.user_email = res.email;
+                    if (res.website){
+                      that.user_website= res.website;
+                    }
+                    if (res.description){
+                      that.user_description= res.description;
+                    }
+                    if (res.youtube_chanel){
+                      that.user_youtube_chanel= res.youtube_chanel;
+                    }
+
+                    that.$$("paper-spinner").setAttribute("hidden", "true");
+                    that.$.user_infos.removeAttribute("hidden");
+                }
+            }
+        };
+      },
+      controlPassword : function(){
+        if (this.$$("#password").value == ""){
+          this.$$('.control.password').style.display= "none";
+          return true;
+        }else{
+          this.$$('.control.password').style.display= "block";
+          var password = this.$$('#password').value;
+          var password_control = this.$$('.control.password input').value;
+          if (password.length < 5){
+            this.passwordMessage = "Mot de passe trop court (5 caractères minimum)"
+            this.$$(".control.password granite-alert").removeAttribute("hidden");
+            return false;
+          }else{
+            if (password == password_control){
+              console.log("pareil");
+              this.user_password = password;
+              this.$$(".control.password granite-alert").setAttribute("hidden", "true");
+              return true;
+            }
+            else{
+              this.passwordMessage = "Les mots de passe doivent être identiques";
+              console.log(password, password_control);
+              this.$$(".control.password granite-alert").removeAttribute("hidden");
+              return false;
+            }
+          }          
+        }
+      },
+      controlDescription : function(){
+        if (this.$$("textarea").value.length > 400){
+          this.descriptionMessage = "Vous ne devez pas dépasser 400 caractères";
+          this.$$(".description granite-alert").removeAttribute("hidden");
+          return false;
+        }else{
+          this.$$(".description granite-alert").setAttribute("hidden", "true");
+          return true;
+        }
+      },
+      saveChange : function(){
+        var data = {};
+        if (this.controlPassword() && this.controlDescription()){
+          if (this.$$("#password").value != ""){
+            data.password = this.$$("#password").value;
+            console.log("pass ok");
+          }
+          if (this.$$("#description").value != ""){
+            data.description = this.$$("#description").value;
+            console.log("description ok");
+          }
+          if (this.$$("#email").value != ""){
+            data.email = this.$$("#email").value;
+            console.log("email ok");
+          }
+          if (this.$$("#website").value != ""){
+            data.website = this.$$("#website").value;
+            console.log("website ok");
+          }
+          if (this.$$("#youtube_chanel").value != ""){
+            data.youtube_chanel = this.$$("#youtube_chanel").value;
+            console.log("youtube_chanel ok");
+          }
+          this.updateUser(data);  
+        }else{
+          this.notifyMessage = "Veuillez remplir les champs correctement";
+          this.$$(".notify").removeAttribute('hidden');
+          this.$$(".notify").setAttribute("level", 'danger');
+        }
+        
+      },
+      updateUser : function(data){
+        var that = this;
+        var http = new XMLHttpRequest();
+        var url = "https://node.edouardg.fr/user/"+this.userId;
+        var params = JSON.stringify(data);
+
+        http.open("PUT", url, true);
+        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
+        http.send(params);
+
+        http.onreadystatechange = function () {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                  console.log(http.response);
+                  //reload the page: 
+                  that._userIdLoaded(); 
+                  that.$$(".notify").removeAttribute("hidden");
+                  that.notifyMessage = "Sauvegarde effectuée";
+                  setTimeout(function(){
+                    that.$$(".notify").setAttribute("hidden", true);
+                  },3000);
+                } else if (http.status == 400) {
+                    console.log('no');
+                    that.notifyMessage = JSON.parse(http.responseText).message;
+                    that.$$(".notify").removeAttribute('hidden');
+                    that.$$(".notify").setAttribute("level", 'danger');
+                }
+            } else if (http.status == 500) {
+                that.notifyMessage = "The server has encountered a situation it doesn't know how to handle.";
+                that.$$(".notify").removeAttribute('hidden');
+                that.$$(".notify").setAttribute("level", 'danger')
+            }
+        };
+      }
     });
 
 

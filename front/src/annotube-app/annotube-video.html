@@ -1,0 +1,45 @@
+<!--
+Notification page
+
+By: Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+
+<dom-module id="annotube-video">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+    <div>
+      video id = [[videoId]]
+      is youtube = [[isYoutube]]
+    </div>
+   
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotube-video',
+
+      properties: {
+        videoId: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        isYoutube: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true,
+          value: false
+        }
+      },
+    });
+
+
+  </script>
+</dom-module>

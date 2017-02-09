@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 
 <dom-module id="menu-item-user">
     <template>
@@ -54,9 +55,9 @@
     </style>
 
 <paper-item>
-    <a class="my-account" name="myaccount" href="/myaccount">
+    <a class="my-account" name="myaccount" href="/profile?profile={{userId}}">
         <!--iron-icon class="avatar" icon="icons:account-circle" item-icon></iron-icon-->
-        <iron-image class = "avatar" id="profile_img" src="[[userProfileImg]]" preload fade sizing="cover"></iron-image>
+        <img class="avatar" src="[[userProfileImg]]" preload fade sizing="cover"/>
  
         <span>[[userName]]</span>
     </a>
@@ -73,10 +74,15 @@
                 notify: true,
                 reflectToAttribute: true
             },
+            userId: {
+                type: String,
+                notify: true,
+                reflectToAttribute: true
+            },
             userProfileImg:{
               type: String,
               notify: true,
-              reflectToAttribute: true
+              reflectToAttribute: true,
             }
         }
     });
