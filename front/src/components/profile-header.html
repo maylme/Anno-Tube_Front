@@ -1,0 +1,99 @@
+<!--
+Component user baner. Visible in profil page, notification...
+
+By: Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<dom-module id="profile-header">
+  <template>
+ <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      iron-icon{
+        cursor: pointer;
+        --iron-icon-fill-color : darkred;
+        --iron-icon-height : 30px;
+        --iron-icon-width: 30px;
+        margin-right: 20px;
+      }
+      .icon{
+
+        position: absolute;
+        top: -50px;
+        left: 185px;
+      }
+  
+    </style>
+   <user-banner 
+     pseudo="[[profilePseudo]]" 
+     profile-img="[[profileImg]]" 
+     background-img="[[profileBackground_img]]"></user-banner>
+   <div class="pd16 relative">
+      <div class="icon">
+        <template is="dom-if" if="[[profileYoutube_chanel]]">
+          <iron-icon id="youtube" 
+          icon="av:video-library" 
+          on-tap="openTab">
+          </iron-icon>
+          <paper-tooltip for="youtube" offset="0">Chaine Youtube</paper-tooltip>
+        </template>
+        <template is="dom-if" if="[[profileWebsite]]">
+          <iron-icon is="dom-if" if="[[profileWebsite]]"  id="website" icon="communication:screen-share"
+          on-tap="openTab">
+          </iron-icon>
+          <paper-tooltip for="website" offset="0">Site internet</paper-tooltip>
+        </template>
+      </div>
+
+      <div  id="description">
+        [[profileDescription]]
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'profile-header',
+      properties: {
+        profilePseudo: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        profileImg: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        backgroundImg: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        profileWebsite:{
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        profileYoutube_chanel:{
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        profileDescription:{
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+    ready: function(){
+      //load("profile_img");
+    }
+    });
+  </script>
+</dom-module>

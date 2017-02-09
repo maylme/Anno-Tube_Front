@@ -16,7 +16,7 @@ By: Mayl
 <link rel="import" href="./shared-styles.html">
 <link rel="import" href="../components/profile-header.html">
 
-<dom-module id="annotube-profile">
+<dom-module id="annotube-myvideos">
   <template>
     <style include="shared-styles">
       
@@ -39,7 +39,7 @@ By: Mayl
 
   <script>
     Polymer({
-      is: 'annotube-profile',
+      is: 'annotube-myvideos',
 
       properties: {
         profilePseudo: {
@@ -94,10 +94,7 @@ By: Mayl
                     }
                     if (res.youtube_chanel){
                       that.profileYoutube_chanel= res.youtube_chanel;
-                    }
-
-                    that.$$("paper-spinner").setAttribute("hidden", "true");
-                    
+                    }                    
                 }
             }
         };
