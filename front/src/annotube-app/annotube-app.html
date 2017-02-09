@@ -8,7 +8,7 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../components/annotube-menu.html">
-<script type="text/javascript" src = "../../bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="../../bower_components/jquery/dist/jquery.min.js"></script>
 <!-- for routing: -->
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
@@ -19,162 +19,166 @@
     <style>
       :host {
         display: block;
-        --primary-color : darkred;
+        --primary-color: darkred;
       }
+      
       paper-header-panel[drawer] {
         --paper-header-panel-container: {
-        border-right: 2px solid lightgrey;
+          border-right: 2px solid lightgrey;
         }
       }
+      
       .drawer-list a.iron-selected {
         color: red;
         font-weight: bold;
       }
-       paper-header-panel[main]{
+      
+      paper-header-panel[main] {
         background-color: #ddd;
       }
-
     </style>
 
-<!-- Utilisé pour le routing, ne pas toucher : -->
-<app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
-<app-route id="route" route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
-<!-- End routing -->
+    <!-- Utilisé pour le routing, ne pas toucher : -->
+    <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
+    <app-route id="route" route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+    <!-- End routing -->
 
 
-<paper-drawer-panel>
-  <paper-header-panel drawer>
-    <paper-toolbar>
-      <div class="title">Menu</div>
-    </paper-toolbar>
-    <annotube-menu user-id="[[userId]]"></annotube-menu>
-  </paper-header-panel>
-  <paper-header-panel main>
-    <paper-toolbar>
-      <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-      <div class="title">
-        Anno'Tubes
-      </div>
-    </paper-toolbar>
-    <div>
-      <!-- Pages à displays selon la route -->
-      <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
-        <annotube-home name="home"></annotube-home>
-        <annotube-options name="options" user-id = [[userId]]></annotube-options>
-        <annotube-signin name="signin"></annotube-signin>
-        <annotube-signup name="signup"></annotube-signup>
-        <annotube-search-result name="search-result"></annotube-search-result>
-        <annotube-profile profile-id = "[[queryParams.profile]]" name="profile"></annotube-profile>
-        <annotube-video video-id = "[[queryParams.videoId]]" is-youtube = "[[queryParams.isYoutube]]" name="video"></annotube-video>
-        <annotube-myvideos profile-id = [[userId]] name="myvideos"></annotube-myvideos>
-        <annotube-forbidden name="forbidden"></annotube-forbidden>
-        <!-- there include other views -->
-        <annotube-view404 name="view404"></annotube-view404>
-      </iron-pages>
-    </div>
-  </paper-header-panel>
-</paper-drawer-panel>
+    <paper-drawer-panel>
+      <paper-header-panel drawer>
+        <paper-toolbar>
+          <div class="title">Menu</div>
+        </paper-toolbar>
+        <annotube-menu user-id="[[userId]]"></annotube-menu>
+      </paper-header-panel>
+      <paper-header-panel main>
+        <paper-toolbar>
+          <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+          <div class="title">
+            Anno'Tubes
+          </div>
+        </paper-toolbar>
+        <div>
+          <!-- Pages à displays selon la route -->
+          <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
+            <annotube-home name="home"></annotube-home>
+            <annotube-options name="options" user-id=[ [userId]]></annotube-options>
+            <annotube-signin name="signin"></annotube-signin>
+            <annotube-signup name="signup"></annotube-signup>
+            <annotube-search-result page-tk="[[queryParams.pageTk]]" search-value="[[queryParams.searchValue]]" name="search-result"></annotube-search-result>
+            <annotube-result-version youtube-id="[[queryParams.youtubeId]]" name="result-version"></annotube-result-version>
+            <annotube-profile profile-id="[[queryParams.profile]]" name="profile"></annotube-profile>
+            <annotube-video video-id="[[queryParams.videoId]]" is-youtube="[[queryParams.isYoutube]]" name="video"></annotube-video>
+            <annotube-myvideos profile-id=[ [userId]] name="myvideos"></annotube-myvideos>
+            <annotube-forbidden name="forbidden"></annotube-forbidden>
+            <!-- there include other views -->
+            <annotube-view404 name="view404"></annotube-view404>
+          </iron-pages>
+        </div>
+      </paper-header-panel>
+    </paper-drawer-panel>
 
 
 
-</template>
+  </template>
 
-<script>
-  Polymer({
+  <script>
+    Polymer({
 
-    is: 'annotube-app',
+      is: 'annotube-app',
 
-    properties: {
-      prop1: {
-        type: String,
-        value: 'annotube-app',
+      properties: {
+        prop1: {
+          type: String,
+          value: 'annotube-app',
+        },
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged',
+        },
+        userId: {
+          type: String,
+          notify: true
+        },
+        routeData: {
+          type: Object,
+        }
       },
-      page: {
-        type: String,
-        reflectToAttribute: true,
-        observer: '_pageChanged',
-      },
-      userId: {
-        type: String,
-        notify: true
-      },
-      routeData:{
-        type: Object,
-      }
-    },
-    observers: [
-      '_routePageChanged(routeData.page)',
-    ],
+      observers: [
+        '_routePageChanged(routeData.page)',
+      ],
 
-    ready : function(){
-      var that = this;
-      var http = new XMLHttpRequest();
-      var url = "https://node.edouardg.fr/user/me";
+      ready: function () {
+        var that = this;
+        var http = new XMLHttpRequest();
+        var url = "https://node.edouardg.fr/user/me";
 
-      http.open("GET", url, true);
-      http.withCredentials = true;
-      http.send();
+        http.open("GET", url, true);
+        http.withCredentials = true;
+        http.send();
 
-      http.onreadystatechange = function () {
+        http.onreadystatechange = function () {
           if (http.readyState == 4) {
-              if (http.status == 200) {
-                console.log(http.response);
-                that.userId = JSON.parse(http.response)._id;
-                that._routePageChanged(that.routeData.page);
-                that._pageChanged(that.page);
-              } else {
-                that.userId = null;
-                that._routePageChanged(that.routeData.page);
-                that._pageChanged(that.page);  
-              }
+            if (http.status == 200) {
+              console.log(http.response);
+              that.userId = JSON.parse(http.response)._id;
+              that._routePageChanged(that.routeData.page);
+              that._pageChanged(that.page);
+            } else {
+              that.userId = null;
+              that._routePageChanged(that.routeData.page);
+              that._pageChanged(that.page);
+            }
           } else {
             that.userId = null;
             that._routePageChanged(that.routeData.page);
             that._pageChanged(that.page);
           }
-      };
-    },
+        };
+      },
 
-    _routePageChanged: function (page) {
-      this.page = page || 'home';
+      _routePageChanged: function (page) {
+        this.page = page || 'home';
 
-      // if (!this.$.drawer.persistent) {
-      //   this.$.drawer.close();
-      // }
-    },
+        // if (!this.$.drawer.persistent) {
+        //   this.$.drawer.close();
+        // }
+      },
 
-    _pageChanged: function (page) {
-      // Load page import on demand. Show 404 page if fails
-      if (
-        (page == "profile" && this.queryParams.profile===undefined) ||
-        (page == "video" && this.queryParams.videoId===undefined)
-       ){
-        console.log("prout");
-        this._showPageForbidden();
-      }
-      if (! this.userId){
-        if (page == "options" || 
-          page =="myvideos"){
+      _pageChanged: function (page) {
+        // Load page import on demand. Show 404 page if fails
+        if (
+          (page == "profile" && this.queryParams.profile === undefined) ||
+          (page == "video" && this.queryParams.videoId === undefined)
+        ) {
+          console.log("prout");
           this._showPageForbidden();
-        }else{
+        }
+        if (!this.userId) {
+          if (page == "options" ||
+            page == "myvideos") {
+            this._showPageForbidden();
+          } else {
+            var resolvedPageUrl = this.resolveUrl("annotube-" + page + '.html');
+            this.importHref(resolvedPageUrl, null, this._showPage404, true);
+          }
+        } else {
           var resolvedPageUrl = this.resolveUrl("annotube-" + page + '.html');
           this.importHref(resolvedPageUrl, null, this._showPage404, true);
         }
-      }else{
-        var resolvedPageUrl = this.resolveUrl("annotube-" + page + '.html');
-        this.importHref(resolvedPageUrl, null, this._showPage404, true);
+      },
+
+      _showPage404: function () {
+        this.page = 'view404';
+      },
+
+      _showPageForbidden: function () {
+        this.page = "forbidden";
       }
-    },
 
-    _showPage404: function () {
-      this.page = 'view404';
-    },
+    });
 
-    _showPageForbidden: function(){
-      this.page = "forbidden";
-    }
-
-  });
-</script>
+  </script>
 
 </dom-module>

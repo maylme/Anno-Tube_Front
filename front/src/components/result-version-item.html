@@ -1,8 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
-<dom-module id="search-result-item">
+<dom-module id="result-version-item">
     <template>
         <style>
             .resultCell {
@@ -102,83 +102,37 @@
             }
         </style>
 
-        <div class="resultCell">
-            <div id="youtubeVideo" class="youtubeData">
-                <iron-image class="thumbnails" src="{{youtubeItem.snippet.thumbnails.medium.url}}"></iron-image>
-                <div class="videoInformations">
-                    <p class="videoTitle">{{youtubeItem.snippet.title}}</p>
-                    <p id="authorDate" class="videoAuthorDate">{{youtubeItem.snippet.channelTitle}} - {{youtubeItem.snippet.publishedAt}}</p>
-                    <p class="videoDescription">{{youtubeItem.snippet.description}}</p>
+        <iron-ajax auto id="ajax" url="https://node.edouardg.fr/user/{{videoItem.author}}" handle-as="json" debounce-duration="300"
+            on-response="init"></iron-ajax>
+            <div class="resultCell">
+                <div id="youtubeVideo" class="youtubeData">
+                    <iron-image class="thumbnails" src="{{videoItem.thunbmail}}"></iron-image>
+                    <div class="videoInformations">
+                        <p class="videoTitle">{{videoItem.name}}</p>
+                        <p id="authorDate" class="videoAuthorDate"></p>
+                        <p class="videoDescription">{{videoItem.description}}</p>
+                    </div>
                 </div>
+                <hr />
             </div>
-            <template is="dom-if" if="[[nbVersions]]">
-                <paper-badge id="badge" for="youtubeVideo" label="[[nbVersions]]" on-tap="showVersions"></paper-badge>
-            </template>
-            <hr />
-        </div>
     </template>
 
     <script>
         Polymer({
-            is: 'search-result-item',
+            is: 'result-version-item',
             properties: {
-                youtubeItem: {
+                videoItem: {
                     type: Object,
                     notify: true
-                },
-                versionItems: {
-                    type: Object,
-                    notify: true
-                },
-                nbVersions: {
-                    type: Number,
-                    notify: true
-                },
-                searchValue: {
-                    type: String,
-                    notify: true,
-                    reflectToAttribute: true
-                },
-                pageTk: {
-                    type: String,
-                    notify: true,
-                    reflectToAttribute: true
                 }
             },
-            ready: function () {
-                this.nbVersions = 0;
-                this.getNumberOfVersion(this.youtubeItem.id.videoId);
+            init: function (result) {
                 var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
                 var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-                var date = new Date(this.youtubeItem.snippet.publishedAt);
-                this.youtubeItem.snippet.publishedAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
-                this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
-            },
-            showVersions: function (event) {
-                console.log(this.pageTk);
-                var url = "/result-version?youtubeId=" + this.youtubeItem.id.videoId;
-                document.location = url;
-            },
-            getNumberOfVersion: function (param) {
-                var that = this;
-                var http = new XMLHttpRequest();
-                var url = "https://node.edouardg.fr/video/youtube/";
-
-                http.open("GET", url + param, true);
-                http.send();
-                http.onreadystatechange = function () {
-                    if (http.readyState == 4) {
-                        if (http.status == 200) {
-                            var answer = JSON.parse(http.response);
-                            that.nbVersions = answer.length;
-                            that.versionItems = answer;
-                        } else {
-                            // console.log(http.response);
-                        }
-                    } else {
-                        // console.log(http.response);
-                    }
-                };
+                var date = new Date(this.videoItem.createdAt);
+                this.videoItem.createdAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+                this.$.authorDate.innerHTML = result.detail.response.username + ", le " + this.videoItem.createdAt;
+                this.videoItem.author = result.detail.response.username;
             }
         });
     </script>
