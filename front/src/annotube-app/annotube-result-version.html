@@ -1,0 +1,49 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../components/result-version-item.html">
+<link rel="import" href="./shared-styles.html">
+
+
+<dom-module id="annotube-result-version">
+  <template>
+    <style include="shared-styles">
+      .divBack {
+        margin-right: auto;
+        padding: 10px;
+      }
+      
+      paper-button {
+        margin: 0;
+      }
+    </style>
+    <iron-ajax auto id="ajax" url="https://node.edouardg.fr/video/youtube/[[youtubeId]]" handle-as="json" last-response="{{response}}"
+      debounce-duration="300"></iron-ajax>
+      <div class="card" style="padding-top: 1px;">
+        <template is="dom-repeat" items="[[response]]">
+          <result-version-item video-item="{{item}}"></result-version-item>
+        </template>
+        <div class="divBack" align="left">
+          <paper-button raised id="goBack" on-tap="goBack">&larr; Retour</paper-button>
+        </div>
+      </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotube-result-version',
+
+      properties: {
+        youtubeId: {
+          type: String,
+          notify: true
+        }
+      },
+      goBack: function () {
+        window.history.back();
+      }
+
+    });
+  </script>
+</dom-module>

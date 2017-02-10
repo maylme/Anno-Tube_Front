@@ -1,0 +1,116 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../components/search-result-item.html">
+<link rel="import" href="../components/search-bar.html">
+<link rel="import" href="./shared-styles.html">
+
+<dom-module id="annotube-search-result">
+  <template>
+    <style include="shared-styles">
+      .form-wrapper {
+        width: 40%;
+        height: 40px;
+        min-width: 300px;
+        margin: 1% auto;
+        box-shadow: 2px 2px 5px lightgray;
+      }
+      
+      .nb-result {
+        float: right;
+        margin-right: 15px;
+      }
+      
+      .prevNext {
+        display: flex;
+      }
+      
+      .divPrev {
+        margin-right: auto;
+        padding: 10px;
+      }
+      
+      .divNext {
+        margin-left: auto;
+        padding: 10px;
+      }
+    </style>
+    <iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU", "type": "video","relevanceLanguage":"fr-fr", "maxResults":"10"}'
+      handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
+
+      <div class="card" style="padding-top: 1px;">
+        <form class="form-wrapper" method="get" target="_self">
+          <search-bar></search-bar>
+        </form>
+        <p class="nb-result">Environ [[response.pageInfo.totalResults]] résultats</p>
+
+        <template is="dom-repeat" items="[[response.items]]">
+          <search-result-item page-tk="[[pageTk]]" search-value="[[searchValue]]" youtube-item="{{item}}"></search-result-item>
+        </template>
+        <div class="prevNext">
+          <div class="divPrev" align="left">
+            <template is="dom-if" if="[[!response.pageInfo.totalResults]]">
+              <p>Il n'y a aucun résultat pour cette recherche</p>
+            </template>
+            <template is="dom-if" if="[[prevPageTk]]">
+              <paper-button raised id="prevPageBt" on-tap="reload">&larr; Précédente</paper-button>
+            </template>
+          </div>
+          <div class="divNext" align="right">
+            <template is="dom-if" if="[[nextPageTk]]">
+              <paper-button raised id="nextPageBt" on-tap="reload">Suivante &rarr;</paper-button>
+            </template>
+          </div>
+        </div>
+      </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotube-search-result',
+
+      properties: {
+        nextPageTk: {
+          type: String,
+          notify: true,
+        },
+        prevPageTk: {
+          type: String,
+          notify: true,
+        },
+        pageTk: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        searchValue: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        }
+
+      },
+      ready: function () {
+        this.$.ajax.params.q = this.searchValue;
+        if (this.pageTk) {
+          this.$.ajax.params.pageToken = this.pageTk;
+        }
+        this.$.ajax.generateRequest();
+      },
+      reload: function (e) {
+        if (e.target.id == "nextPageBt") {
+          this.pageTk = this.nextPageTk;
+        } else {
+          this.pageTk = this.prevPageTk;
+        }
+        var url = "/search-result?searchValue=" + this.searchValue + "&pageTk=" + this.pageTk;
+        window.location.href = url;
+      },
+      youtubeResponse: function (result) {
+        this.nextPageTk = result.detail.response.nextPageToken;
+        this.prevPageTk = result.detail.response.prevPageToken;
+      }
+    });
+  </script>
+</dom-module>
