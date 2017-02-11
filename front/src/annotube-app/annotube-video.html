@@ -5,6 +5,7 @@
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../components/video-display.html">
 <link rel="import" href="../components/video-info.html">
 <link rel="import" href="../components/video-comment.html">
@@ -27,49 +28,58 @@
                 position: relative;
                 width: 60%;
             }
-            .playing_aera{
+            
+            .playing_aera {
                 width: 100%;
-                display:inline-flex;
+                display: inline-flex;
                 padding-bottom: 10px;
                 border-bottom: dashed 1px lightgrey;
                 position: relative;
             }
-           
-            .video_part{
+            
+            .video_part {
                 width: 60%;
                 display: inline-block;
                 margin: 0;
-                padding:0;
+                padding: 0;
             }
-
-            .link_part{
+            
+            .link_part {
                 width: 40%;
                 margin: 0;
-                padding:15px;
+                padding: 15px;
             }
-
-            .link_part div{
-                border:solid grey 1px;
+            
+            .link_part div {
+                border: solid grey 1px;
             }
         </style>
-        <div class="card pd16">
-            <h1>[[videoName]]</h1>
-            <div class="playing_aera">
-                <div class = "video_part">
-                    <video-display class="video" video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
-                    <video-info author = "{author}}" video-id="{{videoId}}" annotations="{{annotations}}" is-youtube="{{isYoutube}}" youtube-id="{{youtubeId}}" video-name="{{videoName}}"  thumbnail="{{thumbnail}}"></video-info>
-                </div><!--
-                --><div class = "link_part">
-                     <div class= "pd16">partie des liens wikipedia
-                     </div>
+
+
+        <iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/videos" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU"}'
+            handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
+
+            <div class="card pd16">
+                <h1>[[videoName]]</h1>
+                <div class="playing_aera">
+                    <div class="video_part">
+                        <video-display class="video" video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
+                        <video-info author = "{author}}" video-id="{{videoId}}" annotations="{{annotations}}" is-youtube="{{isYoutube}}" youtube-id="{{youtubeId}}" video-name="{{videoName}}"  thumbnail="{{thumbnail}}"></video-info>
+                    </div>
+
+                    <div class="link_part ">
+                        <div class="pd16 ">partie des liens wikipedia
+                        </div>
+                    </div>
                 </div>
+
+
+                <template is="dom-repeat " items="{{comments}} ">
+                    <video-comment video-id="{{videoId}} " com-id="{{item._id}} " com-name="{{item.author.username}}
+                            " com-pic=" " com-text="{{item.text}} "></video-comment>
+                </template>
             </div>
 
-
-            <template is="dom-repeat" items="{{comments}}">
-                <video-comment video-id="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
-            </template>
-        </div>
 
     </template>
 
@@ -99,16 +109,16 @@
                 thumbnail: String,
             },
             ready: function () {
-                if (this.isYoutube == "false") {
+                this.isYoutube = (this.isYoutube=="true");
+                if (!this.isYoutube) {
                     var that = this;
                     var url = "https://node.edouardg.fr/video/" + this.videoId;
-                    var param = "";
 
                     var http = new XMLHttpRequest();
                     http.open("GET", url, true);
                     http.setRequestHeader("Content-type", "application/json; charset=utf-8");
                     http.withCredentials = true;
-                    http.send(param);
+                    http.send();
 
                     http.onreadystatechange = function () {
                         if (http.readyState == 4) {
@@ -128,13 +138,16 @@
                             } else if (http.status == 400) {
                                 alert(JSON.parse(http.responseText).message);
                             } else if (http.status == 500) {
-                                console.log("The server has encountered a situation it doesn't know how to handle.");
-                            } else if (http.status == 401){
-                                document.location ="/forbidden";
+                                console.log("The server has encountered a situation it doesn 't know how to handle.");
+                            } else if (http.status == 401) {
+                                document.location = "/forbidden";
+
                             }
                         }
                     }
                 } else {
+                    this.$.ajax.params.id = this.videoId;
+                    this.$.ajax.generateRequest();
                     this.youtubeId = this.videoId;
                     this.videoId = "";
                     this.videoName = "";
@@ -144,6 +157,10 @@
                     this.likes;
                     this.likeId;
                 }
+            },
+            youtubeResponse: function (result) {
+                this.videoName = result.detail.response.items[0].snippet.title;
+                this.thumbnail = result.detail.response.items[0].snippet.thumbnails.medium.url;
             }
         });
     </script>

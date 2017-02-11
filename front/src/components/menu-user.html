@@ -67,7 +67,6 @@ By: Thomas Clop
         _userIdLoaded: function(newValue, oldValue){
             var that = this;
             var http = new XMLHttpRequest();
-            console.log("newValue", newValue, oldValue, this.userId);
             var url = "https://node.edouardg.fr/user/"+this.userId;
 
             http.open("GET", url, true);
@@ -94,7 +93,7 @@ By: Thomas Clop
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status == 200) {
-                        console.log(http.responseText);
+                        //console.log(http.responseText);
                         document.location = "/";
                     } else if (http.status == 400) {
                         console.log(JSON.parse(http.responseText).message);

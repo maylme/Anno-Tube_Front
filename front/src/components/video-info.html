@@ -123,7 +123,8 @@ By: Corentin Hardy
                 isYoutube: {
                     type: Boolean,
                     notify: true,
-                    reflectToAttribute: true
+                    reflectToAttribute: true,
+                    value: false
                 },
                 youtubeId: {
                     type: String,
@@ -316,14 +317,51 @@ By: Corentin Hardy
                 http.withCredentials = true;
                 
                 http.onreadystatechange = function () {
-                    if (http.readyState == 3 && http.status == 201) {
+                    if (http.readyState == 4 && http.status == 201) {
                         var res = JSON.parse(http.response);
 
-                        console.log(res._id);
+                        console.log(res._id, that.isYoutube);
                         if (that.isYoutube){
                             document.location = "/edit?videoId="+res._id;
                         }else{
-                            console.log(that.annotations);
+
+                            console.log("ANNOTATIONS", that.annotations);
+                            url = "https://node.edouardg.fr/annotation";
+                            var request = [];
+                            var defered = [];
+                            for (var i = 0; i < that.annotations.length; i++){
+                                console.log(i);
+                                request[i] = new XMLHttpRequest();
+                                var to_send = JSON.stringify({
+                                    "video": res._id,
+                                    "time_start": that.annotations[i].time_start,
+                                    "time_end": that.annotations[i].time_end,
+                                    "text": that.annotations[i].text,
+                                    "shape": {
+                                        "type": that.annotations[i].shape.type,
+                                        "position_x": that.annotations[i].shape.position_x,
+                                        "position_y": that.annotations[i].shape.position_y
+                                    }
+                                });
+                                let tmp = i;
+                                defered[tmp] = $.Deferred();
+
+                                request[tmp].open("POST", url, true);
+                                request[tmp].setRequestHeader("Content-type", "application/json; charset=utf-8");
+                                request[tmp].withCredentials = true;
+                                request[tmp].send(to_send);
+                                request[tmp].onreadystatechange = function () {
+                                    if (request[tmp].readyState == 4 && request[tmp].status == 201) {
+                                        var reuslt = JSON.parse(request[tmp].response);
+                                        console.log(reuslt);
+                                        defered[tmp].resolve();
+                                    }
+                                };
+                            }
+                            $.when.apply($, defered).done(function(){
+                                console.log("all finished");
+                                document.location = "/edit?videoId="+res._id;
+                            })
                         }
 
                     }else if (http.status == 400){
