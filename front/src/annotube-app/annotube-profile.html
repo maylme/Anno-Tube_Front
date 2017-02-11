@@ -12,18 +12,22 @@ By: Mayl
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
 <link rel="import" href="./shared-styles.html">
 <link rel="import" href="../components/profile-header.html">
-
+<link rel="import" href="../components/video-thumbnail.html">
 <dom-module id="annotube-profile">
   <template>
     <style include="shared-styles">
-      
-  
+      .video_list{
+        border-top: dashed lightgrey 1px;
+      }
     </style>
 
    <div class="card">
+    
+
     <profile-header 
     profile-pseudo = "[[profilePseudo]]"
     profile-img = "[[profileImg]]"
@@ -34,8 +38,9 @@ By: Mayl
     profile-id = "[[profileId]]"
     ></profile-header>
     <div class="video_list pd16">
-
-      <template is="dom-repeat" items="{{videos}}" as="video">
+      <iron-ajax auto id="ajax" url="https://node.edouardg.fr/user/[[profileId]]/video" handle-as="json" last-response="{{videos}}"
+      debounce-duration="300" with-credentials = "true"></iron-ajax>
+      <template auto id="renderme" is="dom-repeat" items="{{videos}}" as="video">
         <video-thumbnail video-obj = "{{video}}"></video-thumbnail>
       </template>
 
@@ -49,7 +54,7 @@ By: Mayl
       is: 'annotube-profile',
 
       properties: {
-        profilePseudo: {
+       profilePseudo: {
           type: String,
         },
         profileImg: {
@@ -69,8 +74,7 @@ By: Mayl
         profileId:{
           type: String,
           notify: true,
-          reflectToAttribute: true,
-          observer: '_userIdLoaded'
+          reflectToAttribute: true
         },
         profileBackground_img: {
           type: String,
@@ -78,10 +82,12 @@ By: Mayl
         },
         videos: {
           type: Object,
-          notify: true
+          notify: true,
         }
       },
-      _userIdLoaded : function(){
+      ready : function(){
+        //this.getVideos();
+
         var that = this;
         var http = new XMLHttpRequest();
         var url = "https://node.edouardg.fr/user/"+this.profileId;
@@ -104,7 +110,6 @@ By: Mayl
                     if (res.youtube_chanel){
                       that.profileYoutube_chanel= res.youtube_chanel;
                     }
-                    that.getVideos();
                 }
             }
         };
@@ -118,24 +123,27 @@ By: Mayl
           window.open(this.profileYoutube_chanel,'_blank');
         }
       },
-      getVideos: function(){
-        var that = this;
-        var http = new XMLHttpRequest();
-        var url = "https://node.edouardg.fr/user/"+this.profileId+"/video";
+      // getVideos: function(){
+      //   var that = this;
+      //   var http = new XMLHttpRequest();
+      //   var url = "https://node.edouardg.fr/user/"+this.profileId+"/video";
 
-        http.open("GET", url, true);
-        http.withCredentials = true;
-        http.send();
-        http.onreadystatechange = function () {
-            if (http.readyState == 4) {
-                if (http.status == 200) {
-                    var res = JSON.parse(http.response);
-                    console.log("videos", res); 
-                    that.videos = res;                    
-                }
-            }
-        };
-      }
+      //   http.open("GET", url, true);
+      //   http.withCredentials = true;
+      //   http.send();
+      //   http.onreadystatechange = function () {
+      //       if (http.readyState == 4) {
+      //           if (http.status == 200) {
+      //               var res = JSON.parse(http.response);
+      //               that.videos = res;
+      //               console.log("videos", res); 
+
+      //               that.$.renderme.render();
+
+      //           }
+      //       }
+      //   };
+      // }
 
     });
   </script>

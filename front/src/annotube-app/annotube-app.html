@@ -120,7 +120,7 @@
         http.onreadystatechange = function () {
           if (http.readyState == 4) {
             if (http.status == 200) {
-              console.log(http.response);
+              //console.log(http.response);
               that.userId = JSON.parse(http.response)._id;
               that._routePageChanged(that.routeData.page);
               that._pageChanged(that.page);
@@ -151,7 +151,6 @@
           (page == "profile" && this.queryParams.profile === undefined) ||
           (page == "video" && this.queryParams.videoId === undefined)
         ) {
-          console.log("prout");
           this._showPageForbidden();
         }
         if (!this.userId) {
