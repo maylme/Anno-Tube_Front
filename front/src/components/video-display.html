@@ -139,7 +139,7 @@
                 <div id="time" class="videoBar">{{currenttimeformatted}} / {{durationformatted}}</div>
 
                 <iron-icon id="fullScreen" icon="{{_fullScreen_icon}}" on-tap="fullScreen"></iron-icon> 
-                <iron-icon id="settings" icon="{{_settings_icon}}"></iron-icon> 
+                <iron-icon id="settings" icon="{{_settings_icon}}" on-tap="settingsEvent"></iron-icon> 
             </div>
         </div>
     </template>
@@ -155,14 +155,16 @@
              * @event video-state-change
              * @param {Object} e Event parameters
              * 
+             * @event settings-event
+             * when user click on settings
              */
 
             properties: {
                 videoId: {
                     type: String,
-                    value: "CIbfdfBeVLY", // normally specified in argument
                     notify: true,
-                    reflectToAttribute: true
+                    reflectToAttribute: true,
+                    observer: '_videoIdChanged'
                 },
                 nextVideoId: {
                     // deprecated
@@ -291,6 +293,11 @@
                     this.$.videoControl.classList.remove("videoControl-in")
                     this.$.videoControl.classList.add("videoControl-out");
                 }
+                console.log("videoId init: ", this.videoId);
+
+            },
+            _videoIdChanged: function () {
+                console.log("videoId changed: ", this.videoId);
             },
             play: function () {
                 console.log("play / pause: ", this.state);
@@ -352,6 +359,9 @@
             },
             videoReady: function (e) {
                 this.fire('video-ready', e);        
+            },
+            settingsEvent: function () {
+                this.fire('settings-event');
             },
             /** states by youtube: 
              * -1 (unstarted)
