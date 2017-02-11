@@ -30,10 +30,10 @@ By: Mayl
             }
         </style>
         <div class="card pd16">
-            <video-display class="video" videoId="{{videoId}}"></video-display>
-            <video-info videoId="{{videoId}}" isYoutube="{{isYoutube}}"></video-info>
+            <video-display class="video" video-id="{{youtubeId}}"></video-display>
+            <video-info video-id="{{videoId}}" is-youtube="{{isYoutube}}"></video-info>
             <template is="dom-repeat" items="{{comments}}">
-                <video-comment videoId="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
+                <video-comment video-id="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
             </template>
         </div>
 
