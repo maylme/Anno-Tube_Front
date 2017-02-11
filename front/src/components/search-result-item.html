@@ -102,7 +102,7 @@
             }
         </style>
 
-        <div class="resultCell">
+        <div class="resultCell" on-tap="playVideo">
             <div id="youtubeVideo" class="youtubeData">
                 <iron-image class="thumbnails" src="{{youtubeItem.snippet.thumbnails.medium.url}}"></iron-image>
                 <div class="videoInformations">
@@ -154,8 +154,13 @@
                 this.youtubeItem.snippet.publishedAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
                 this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
             },
-            showVersions: function (event) {
-                console.log(this.pageTk);
+            playVideo: function (event) {
+                if (!event.target.classList.contains("paper-badge")) {
+                    var url = "/video?videoId=" + this.youtubeItem.id.videoId + "&isYoutube=true";
+                    document.location = url;
+                }
+            },
+            showVersions: function () {
                 var url = "/result-version?youtubeId=" + this.youtubeItem.id.videoId;
                 document.location = url;
             },

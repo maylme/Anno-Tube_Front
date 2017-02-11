@@ -5,41 +5,108 @@ By: Mayl
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../components/video-display.html">
+<link rel="import" href="../components/video-info.html">
+<link rel="import" href="../components/video-comment.html">
+<link rel="import" href="./shared-styles.html">
 
 
 <dom-module id="annotube-video">
-  <template>
-    <style include="shared-styles">
-      :host {
-        display: block;
-      }
-    </style>
-    <div>
-      video id = [[videoId]]
-      is youtube = [[isYoutube]]
-    </div>
-   
-  </template>
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+            
+            video-display {
+                position: relative;
+                width: 60%;
+            }
+            
+            video-comment {
+                position: relative;
+                width: 60%;
+            }
+        </style>
+        <div class="card pd16">
+            <video-display class="video" video-id="{{youtubeId}}"></video-display>
+            <video-info video-id="{{videoId}}" is-youtube="{{isYoutube}}"></video-info>
+            <template is="dom-repeat" items="{{comments}}">
+                <video-comment video-id="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
+            </template>
+        </div>
 
-  <script>
-    Polymer({
-      is: 'annotube-video',
+    </template>
 
-      properties: {
-        videoId: {
-          type: String,
-          notify: true,
-          reflectToAttribute: true
-        },
-        isYoutube: {
-          type: Boolean,
-          notify: true,
-          reflectToAttribute: true,
-          value: false
-        }
-      },
-    });
+    <script>
+        Polymer({
+            is: 'annotube-video',
 
+            properties: {
+                videoId: {
+                    type: String,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                isYoutube: {
+                    type: Boolean,
+                    notify: true,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                youtubeId: String,
+                videoName: String,
+                author: Object, //"_id": "updatedAt": "createdAt": "email": "username"
+                annotations: Object,
+                comments: Object,
+                likes: Number,
+                likeId: String,
+            },
+            ready: function () {
+                if (this.isYoutube == "false") {
+                    var that = this;
+                    var url = "https://node.edouardg.fr/video/" + this.videoId;
+                    var param = "";
 
-  </script>
+                    var http = new XMLHttpRequest();
+                    http.open("GET", url, true);
+                    http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                    http.withCredentials = true;
+                    http.send(param);
+
+                    http.onreadystatechange = function () {
+                        if (http.readyState == 4) {
+                            if (http.status == 200) {
+                                console.log(http.responseText);
+                                var res = JSON.parse(http.response);
+
+                                that.youtubeId = res.youtube;
+                                that.videoName = res.name;
+                                that.author = res.author;
+                                that.annotations = res.annotations;
+                                that.comments = res.comments;
+                                that.likes;
+                                that.likeId;
+
+                            } else if (http.status == 400) {
+                                alert(JSON.parse(http.responseText).message);
+                            } else if (http.status == 500) {
+                                console.log("The server has encountered a situation it doesn't know how to handle.");
+                            }
+                        }
+                    }
+                } else {
+                    this.youtubeId = this.videoId;
+                    this.videoId = "";
+                    this.videoName = "";
+                    this.author = "";
+                    this.annotations = "";
+                    this.comments = "";
+                    this.likes;
+                    this.likeId;
+                }
+            }
+        });
+    </script>
 </dom-module>
