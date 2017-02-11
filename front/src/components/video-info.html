@@ -6,26 +6,28 @@ By: Corentin Hardy
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../annotube-app/shared-styles.html">
+
 
 <iron-iconset-svg size="24" name="annotube-icons"><!--TODO goto assets ? -->
     <svg><defs>
-        <g id="favorite"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></g>
-        <g id="thumb-down"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"></path></g>
+        <!--g id="favorite"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></g>
+        <g id="thumb-down"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"></path></g-->
         <g id="thumb-up"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"></path></g>
     </defs></svg>
 </iron-iconset-svg>
 
 <dom-module id="video-info">
     <template>
-        <style>
+        <style include="shared-styles">
             :host {
                 display: block;
+                position: relative;
             }
 
             .videoInfo {
-                position: relative;
-                left: 30%;
-                width: 30%;
+                float: right;
             }
 
             :host([favorite]) #favorite {
@@ -37,30 +39,84 @@ By: Corentin Hardy
             :host([disliked]) #likeDown {
                 fill: #b21d27;
             }
+            .avatar {
+                width: 40px;
+                height: 40px;
+                background: #ddd;
+                border-radius: 50%;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            a{
+                text-decoration: none;
+            }
+            .author{
+                font-size:15px;
+                margin: 0;
+                cursor: pointer;
+                color:grey;
+            }
+            .author:hover{
+                text-decoration: underline;
+            }
+            iron-icon {
+                cursor: pointer;
+            }
         </style>
         <h2>[[name]]</h2>
-        <div class="authorInfo">
-            <span>subscribe</span>
-        </div>
-        <div class="videoInfo">
-            <iron-icon id="favorite" on-tap="setFavorite" icon="annotube-icons:favorite"></iron-icon>
+        <template is="dom-if" if="[[author]]">
+            <span class="authorInfo">
+                <a href="/profile?profile=[[author._id]]">
+                    <template is="dom-if" if="[[author.img]]">
+                        <img class= "avatar" src="[[author.img]]">
+                    </template>
+                    <template is="dom-if" if="[[!author.img]]">
+                        <img class= "avatar" src="/assets/default/default_profile.svg">
+                    </template>
+                </a>
+                <a class="author" href="/profile?profile=[[author._id]]">[[author.username]]</a>
+            </span>
+        </template>
+
+        <span class="videoInfo">
+            <!--iron-icon id="favorite" on-tap="setFavorite" icon="annotube-icons:favorite"></iron-icon-->
+            <span>[[nbLikes]]</span>
             <iron-icon id="likeUp" on-tap="likeUp" icon="annotube-icons:thumb-up"></iron-icon>
-            <span>[[nbLikes]] like</span>
-            <iron-icon id="likeDown" on-tap="likeDown" icon="annotube-icons:thumb-down"></iron-icon>
-            <iron-icon id="addVideo" on-tap="addVideo" icon="icons:note-add"></iron-icon>
-            <iron-icon id="save" on-tap="save" icon="icons:save"></iron-icon>
-        </div>
+            <!--iron-icon id="likeDown" on-tap="likeDown" icon="annotube-icons:thumb-down"></iron-icon>
+            <iron-icon id="addVideo" on-tap="addVideo" icon="icons:note-add"></iron-icon-->
+            <iron-icon id="edit" on-tap="edit" icon="icons:create"></iron-icon>
+            <paper-tooltip for="edit" offset="0">Annoter cette vidéo</paper-tooltip>
+
+        </span>
     </template>
 
     <script>
         Polymer({
             is: 'video-info',
             properties: {
-                userId: String, 
-                videoName: String,
+                author: {
+                    type: Object, 
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                videoName:{
+                    type: String,
+                    notify: true,
+                    reflectToAttribute: true
+                },
                 videoId: {
                     type: String,
                     value: "CIbfdfBeVLY",
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                isYoutube: {
+                    type: Boolean,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                youtubeId: {
+                    type: String,
                     notify: true,
                     reflectToAttribute: true
                 },
@@ -81,18 +137,12 @@ By: Corentin Hardy
                     notify: true,
                     reflectToAttribute: true
                 },
-                disliked: {
+                /*favorite: {
                     type: Boolean,
                     value: false,
                     notify: true,
                     reflectToAttribute: true
-                },
-                favorite: {
-                    type: Boolean,
-                    value: false,
-                    notify: true,
-                    reflectToAttribute: true
-                }
+                }*/
             },
             likeUp: function() {
                 if(this.liked) {
@@ -107,7 +157,7 @@ By: Corentin Hardy
                 }else
                     this.setLike(1);
             },
-            likeDown: function() {
+            /*likeDown: function() {
                 if(this.disliked){
                     this.disliked = false;
                     this.setLike(1);
@@ -119,7 +169,7 @@ By: Corentin Hardy
                     this.setLike(-2);
                 }else
                     this.setLike(-1);
-            },
+            },*/
             setLike: function(changes){
                 if(changes == 0){
                     this._removeLike();
@@ -133,11 +183,11 @@ By: Corentin Hardy
                 // TODO back
                 this.nbLikes += changes;
             },
-            setFavorite: function() {
+            /*setFavorite: function() {
                 this.favorite = !this.favorite;
                 console.log("set favorite: ", this.favorite);
                 // TODO back
-            },
+            },*/
             _createLike: function(userLikeValue){
                 console.log("_createLike ", this.userId);
                 var that = this;
@@ -204,7 +254,7 @@ By: Corentin Hardy
                     }
                 };
             },
-            addVideo: function () {
+            /*addVideo: function () {
                 console.log("addVideo ", this.userId);
                 var that = this;
                 var http = new XMLHttpRequest();
@@ -236,9 +286,37 @@ By: Corentin Hardy
                         }
                     }
                 };
-            },
-            saveVideo: function () {
-                console.log("TODO Save Videos");
+            },*/
+            edit: function () {
+                console.log("isYoutube", this.isYoutube);
+                /* first create new annoted video with the youtube Id */
+                if (this.isYoutube){
+                    var params = {
+                        "name": "Copie de " + this.videoName,
+                        "youtube": this.youtubeId,
+                        "thunbmail": "null",
+                        "privacy": true
+                    };
+
+                    console.log("params", params);
+                    var that = this;
+                    var url = "https://node.edouardg.fr/video";
+
+                    var http = new XMLHttpRequest();
+                    http.open("POST", url, true);
+                    http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                    http.withCredentials = true;
+                    http.send(params);
+                    http.onreadystatechange = function () {
+                        if (http.readyState == 4) {
+                            if (http.status == 200) {
+                                var res = JSON.parse(http.response);
+                                console.log(res);
+                                document.location= "/edit?edit=res._id";
+                            }
+                        }
+                    };
+                }
             }
         });
     </script>
