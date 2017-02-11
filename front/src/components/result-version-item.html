@@ -104,7 +104,7 @@
 
         <iron-ajax auto id="ajax" url="https://node.edouardg.fr/user/{{videoItem.author}}" handle-as="json" debounce-duration="300"
             on-response="init"></iron-ajax>
-            <div class="resultCell">
+            <div class="resultCell" on-tap="playVideo">
                 <div id="youtubeVideo" class="youtubeData">
                     <iron-image class="thumbnails" src="{{videoItem.thunbmail}}"></iron-image>
                     <div class="videoInformations">
@@ -125,6 +125,10 @@
                     type: Object,
                     notify: true
                 }
+            },
+            playVideo: function (event) {
+                var url = "/video?videoId=" + this.videoItem._id + "&isYoutube=false";
+                document.location = url;
             },
             init: function (result) {
                 var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
