@@ -1,0 +1,400 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../../bower_components/fullscreen-api/fullscreen-api.html">
+
+<dom-module id="video-display">
+    <template>
+        <style>
+            :host {
+                display: block;
+                min-width: 300px;
+            }
+
+            .youtube {
+                z-index: 100;
+            }
+            .canvas{
+                z-index: 101;
+                position: absolute;
+            }
+            #videoComponent{
+                {{ isFullScreened?"
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                " : ""}}
+            }
+            #videoComponent:full-screen {
+                width: 100%;
+                height: auto;
+                min-width: 600px;
+            }
+            .videoControl-in {
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.66);
+            }
+            .videoControl-out {
+                position: relative;
+                background-color: black;
+            }
+            #videoControl {
+                z-index: 102;
+                bottom: 0;
+                height: 2.5em;
+                width: 100%;
+            }
+            #videoControl > iron-icon, #videoControl > .videoBar {
+                bottom: -0.5em;
+                height: 2em;
+                width: 2em;
+                background: none;
+                fill: white;    
+                margin: 0;      
+
+                display: -ms-inline-flexbox;
+                display: -webkit-inline-flex;
+                display: inline-flex;
+                -ms-flex-align: center;
+                -webkit-align-items: center;
+                align-items: center;
+                -ms-flex-pack: center;
+                -webkit-justify-content: center;
+                justify-content: center;
+                position: relative;
+                vertical-align: middle;
+                stroke: none;
+            }
+            #videoControl iron-icon:last-child, 
+            #videoControl iron-icon:nth-last-child(2){
+                float: right;
+            }
+            #videoControl iron-icon:hover {
+                background-color: darkgrey;
+            }
+            #videoControl .videoBar {
+                width: 20%;  
+            }
+            .canvas, .youtube {
+                width: 100%;
+            }
+            /*.videoComponent[_isNextVideo] >*/ #videoControl > #next {
+                display: none;
+            }
+            #time {
+                color: white;
+            }
+            #timeBar {
+                position: absolute;
+                width: 100%;
+                height: 0.5em;
+                bottom: 2em;
+            }
+        </style>
+        <fullscreen-api id="fullscreenApi" target="#videoComponent"></fullscreen-api>
+        <div id="videoComponent">
+            <div class="canvas">
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="youtube">
+                <google-youtube
+                        id="video"
+                        video-id="[[videoId]]"
+                        fluid="true"
+                        autoplay="1"
+                        state="{{state}}"
+                        chromeless="true"
+                        currenttime="{{currenttime}}"
+                        currenttimeformatted="{{currenttimeformatted}}"
+                        duration="{{duration}}"
+                        durationformatted="{{durationformatted}}"
+
+                       >
+                    <!--
+                      video-id="SJubeTlS9CQ" id d'une video youtube directe
+                      height="270px"
+                      width="480px"
+                      start:number start at this time in second-->
+                </google-youtube>
+            </div>
+            <div id="videoControl" class="videoControl-in">
+                <paper-slider 
+                    id="timeBar" 
+                    value="{{currenttime}}" 
+                    max="{{duration}}" 
+                    change="sliderChange" 
+                    --paper-slider-height="1px"
+                ></paper-slider>
+
+                <iron-icon id="play" on-tap="play" icon="{{_play_icon}}"></iron-icon> 
+                <iron-icon id="next" on-tap="next" icon="{{_next_icon}}"></iron-icon>
+                
+                <iron-icon id="mute" on-tap="mute" icon="{{_mute_icon}}"></iron-icon>
+                <paper-slider id="volume" class="videoBar" value="{{volume}}" change="sliderChange"></paper-slider>
+                <div id="time" class="videoBar">{{currenttimeformatted}} / {{durationformatted}}</div>
+
+                <iron-icon id="fullScreen" icon="{{_fullScreen_icon}}" on-tap="fullScreen"></iron-icon> 
+                <iron-icon id="settings" icon="{{_settings_icon}}"></iron-icon> 
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'video-display',
+            /**
+             * 
+             * @event video-ready
+             * @param {Object} e Event parameters.
+             * 
+             * @event video-state-change
+             * @param {Object} e Event parameters
+             * 
+             */
+
+            properties: {
+                videoId: {
+                    type: String,
+                    value: "CIbfdfBeVLY", // normally specified in argument
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                nextVideoId: {
+                    // deprecated
+                    type: String,
+                    value: "",
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                _isNextVideo: {
+                    type: Boolean,
+                    value: true,
+                    notify: true,
+                    reflectToAttribute: true
+                    // readOnly: true
+                },
+                isFullScreened: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true                    
+                },
+                state: {
+                    /** states by youtube: 
+                     * -1 (unstarted)
+                     *  0 (ended)
+                     *  1 (playing)
+                     *  2 (paused)
+                     *  3 (buffering)
+                     *  5 (video cued)
+                     */
+                    type: Number,
+                    value: 1,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                volume: {
+                    /**
+                     * volume by youtube:
+                     * number between 0 and 100
+                     */
+                    type: Number,
+                    value: 100,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                _volume: {
+                    type: Number,
+                    readOnly: true
+                },
+                isMuted: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true                    
+                },
+                currenttime: {
+                    type: Number,
+                    notify: true,
+                    reflectToAttribute: true 
+                },
+                currenttimeformatted: {
+                    type: String,
+                    notify: true,
+                    reflectToAttribute: true 
+                },
+                duration: {
+                    type: Number,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                _duration: {
+                    type: Number,
+                    readOnly: true
+                },
+                durationformatted: {
+                    type: String,
+                    notify: true,
+                    reflectToAttribute: true     
+                },
+                isControlOut: {
+                    type: Boolean,
+                    value: false,
+                    // readOnly: true,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                _play_icon: {
+                    type: String,
+                    readOnly: true,
+                    value: "av:play-arrow", 
+                },
+                _next_icon: {
+                    type: String,
+                    readOnly: true,
+                    value: "av:skip-next",
+                },
+                _mute_icon: {
+                    type: String,
+                    readOnly: true,
+                    value: "av:volume-up",
+                },
+                _fullScreen_icon: {
+                    type: String,
+                    readOnly: true,
+                    value: "icons:fullscreen", // icons:fullscreen-exit 
+                },
+                _settings_icon: {
+                    type: String,
+                    readOnly: true,
+                    value: "icons:settings",
+                }
+            },
+            listeners: {
+                'volume.change': 'volumeChanged',
+                'timeBar.change': 'setTime',
+                'video.google-youtube-ready' : 'videoReady',
+                'video.google-youtube-state-change' : 'videoStateChange'
+            },
+
+            ready: function () {
+                this._set_volume(this.volume);
+                this._isNextVideo = (this.nextVideoId != "");
+                console.log("isControlOut: ", this.isControlOut);
+
+                if(this.isControlOut){
+                    this.$.videoControl.classList.remove("videoControl-in")
+                    this.$.videoControl.classList.add("videoControl-out");
+                }
+            },
+            play: function () {
+                console.log("play / pause: ", this.state);
+                if (this.state != 1){
+                    this.$.video.play();
+                }
+                else{
+                    this.$.video.pause();
+                } 
+            },
+            setTime: function () {
+                console.log("clicked on ", this.currenttime, " / ", this.duration);
+                this.$.video.seekTo(this.currenttime);
+            },
+            mute: function () {
+                if (this.isMuted){
+                    this.volume = this._volume;
+                    this.$.video.unMute();
+                }else{
+                    console.log("Set to ", this.volume);
+                    this._set_volume(this.volume);
+                    this.volume = 0;
+                    this.$.video.mute();
+                }
+                this.isMuted = ! this.volumeChanged();
+            },
+            next: function () {
+                console.log("TODO"); // TODO
+                if(this._isNextVideo){
+                    console.log("navigation to this en changeant le params idVideo + demanander quel est la nextVideo ?");
+                }
+            },
+            volumeChanged: function () {
+                var wasMuted = this.isMuted;
+                if (this.isMuted){
+                    this.isMuted = false;
+                    this.$.video.unMute();
+                }
+                if (this.volume < 10)
+                    this._set_mute_icon("av:volume-mute");
+                else if (this.volume < 70)
+                    this._set_mute_icon("av:volume-down");
+                else
+                    this._set_mute_icon("av:volume-up");
+                this.$.video.setVolume(this.volume);
+                return wasMuted;
+            },
+            fullScreen: function () {
+                console.log("activate fullscreen", this.isFullScreened);
+                this.isFullScreened = ! this.isFullScreened;
+                console.log("become => ", this.isFullScreened);
+
+                if(this.isControlOut){
+                    this.videoControlChange(! this.isFullScreened);
+                }
+
+
+                this.$.fullscreenApi.toggleFullscreen();
+            },
+            videoReady: function (e) {
+                this.fire('video-ready', e);        
+            },
+            /** states by youtube: 
+             * -1 (unstarted)
+             *  0 (ended)
+             *  1 (playing)
+             *  2 (paused)
+             *  3 (buffering)
+             *  5 (video cued)
+             */
+            videoStateChange: function (e) {
+                switch(this.state){
+                    case 0: 
+                        this._set_play_icon("av:replay");
+                        break;
+                    case -1:
+                    case 1: 
+                        this._set_play_icon("av:pause");
+                        break;
+                    case 2:
+                        this._set_play_icon("av:play-arrow");
+                        break;
+                    case 3:
+                        console.log("buffering...");
+                        break;
+                    case 5:
+                        console.log("video cued");
+                        break;
+                    default: 
+                        console.log("Unknown state ? ", this.state);
+                        break;
+                }
+                this.fire('video-state-change', e);
+            },
+            videoControlChange: function (isControlOut) {
+                if(isControlOut){
+                    this.$.videoControl.classList.remove("videoControl-in")
+                    this.$.videoControl.classList.add("videoControl-out");
+                } else {
+                    this.$.videoControl.classList.remove("videoControl-out");
+                    this.$.videoControl.classList.add("videoControl-in")
+                }
+
+            }
+        });
+    </script>
+</dom-module>

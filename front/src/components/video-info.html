@@ -1,0 +1,241 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+
+<iron-iconset-svg size="24" name="annotube-icons"><!--TODO goto assets ? -->
+    <svg><defs>
+        <g id="favorite"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></g>
+        <g id="thumb-down"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"></path></g>
+        <g id="thumb-up"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"></path></g>
+    </defs></svg>
+</iron-iconset-svg>
+
+<dom-module id="video-info">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            .videoInfo {
+                position: relative;
+                left: 30%;
+                width: 30%;
+            }
+
+            :host([favorite]) #favorite {
+                fill: #ff5aec;
+            }
+            :host([liked]) #likeUp {
+                fill: #4b5ba1;
+            }
+            :host([disliked]) #likeDown {
+                fill: #b21d27;
+            }
+        </style>
+        <h2>[[name]]</h2>
+        <div class="authorInfo">
+            <span>subscribe</span>
+        </div>
+        <div class="videoInfo">
+            <iron-icon id="favorite" on-tap="setFavorite" icon="annotube-icons:favorite"></iron-icon>
+            <iron-icon id="likeUp" on-tap="likeUp" icon="annotube-icons:thumb-up"></iron-icon>
+            <span>[[nbLikes]] like</span>
+            <iron-icon id="likeDown" on-tap="likeDown" icon="annotube-icons:thumb-down"></iron-icon>
+            <iron-icon id="addVideo" on-tap="addVideo" icon="icons:note-add"></iron-icon>
+            <iron-icon id="save" on-tap="save" icon="icons:save"></iron-icon>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'video-info',
+            properties: {
+                userId: String, 
+                videoName: String,
+                videoId: {
+                    type: String,
+                    value: "CIbfdfBeVLY",
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                _likeId: {
+                    type: String, 
+                    readOnly: true,
+                    value: ""
+                },
+                nbLikes: {
+                    type: Number,
+                    value: 0,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                liked: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                disliked: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                favorite: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true
+                }
+            },
+            likeUp: function() {
+                if(this.liked) {
+                    this.liked = false;
+                    this.setLike(-1);
+                    return;
+                }
+                this.liked = true;
+                if(this.disliked) {
+                    this.disliked = false;
+                    this.setLike(2);
+                }else
+                    this.setLike(1);
+            },
+            likeDown: function() {
+                if(this.disliked){
+                    this.disliked = false;
+                    this.setLike(1);
+                    return;
+                }
+                this.disliked = true;
+                if(this.liked) {
+                    this.liked = false;
+                    this.setLike(-2);
+                }else
+                    this.setLike(-1);
+            },
+            setLike: function(changes){
+                if(changes == 0){
+                    this._removeLike();
+                }
+                if(changes > 2 || changes < -2)
+                    return;
+                if(this._likeId != "")
+                    this._setLike(changes);
+                else 
+                    this._createLike(changes);
+                // TODO back
+                this.nbLikes += changes;
+            },
+            setFavorite: function() {
+                this.favorite = !this.favorite;
+                console.log("set favorite: ", this.favorite);
+                // TODO back
+            },
+            _createLike: function(userLikeValue){
+                console.log("_createLike ", this.userId);
+                var that = this;
+                var http = new XMLHttpRequest();
+                var url = "https://node.edouardg.fr/like";
+                var params = "videdo=" + this._likeId + "&rate=" + userLikeValue + "&author=" + this.user; 
+                http.open("POST", url, true);
+                http.withCredentials = true;
+                http.send(params);
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200) {
+                            var res = JSON.parse(http.response);
+
+                            if(res._id)
+                                that._likeId = res._id;
+                            else
+                                console.log("_createLike error: \n", res);
+                        }
+                    }
+                };
+            },
+            _setLike: function(userLikeValue){
+                console.log("_setLike ", this.userId, ": ", this._likeId);
+                var that = this;
+                var http = new XMLHttpRequest();
+                var url = "https://node.edouardg.fr/like/"+this._likeId;
+                var params = "id=" + this._likeId + "&rate=" + userLikeValue; 
+                http.open("GET", url, true);
+                http.withCredentials = true;
+                http.send(params);
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200) {
+                            var res = JSON.parse(http.response);
+
+                            if(res.rate != userLikeValue){
+                                console.log("error: can't set like to ", userLikeValue,", set to ", res.rate);
+                            }else
+                                console.log("_setLike successful");
+                        }
+                    }
+                };
+            },
+            _removeLike: function(){
+                console.log("_removeLike ", this.userId, ": ", this._likeId);
+                var that = this;
+                var http = new XMLHttpRequest();
+                var url = "https://node.edouardg.fr/like/" + this._likeId;
+                var params = "id=" + this._likeId ; 
+                http.open("DELETE", url, true);
+                http.withCredentials = true;
+                http.send(params);
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200) {
+                            var res = JSON.parse(http.response);
+
+                            if(res.message){
+                                console.log("_removeLike received message: ", res.message);
+                            }else
+                                console.log("_removeLike error: \n", res);
+                        }
+                    }
+                };
+            },
+            addVideo: function () {
+                console.log("addVideo ", this.userId);
+                var that = this;
+                var http = new XMLHttpRequest();
+                var url = "https://node.edouardg.fr/video";
+                http.open("POST", url, true);
+
+                var params = "";
+                params += "youtube=" + this.videoId;
+                params += "&name=" + this.videoName;
+                
+                http.withCredentials = true;
+                http.send(params);
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200) {
+                            var res = JSON.parse(http.response);
+
+                            console.log(res);
+                            if (res._id){
+                                console.log(res._id);
+                                // navigation ?
+                                // that.profileWebsite= res.website;
+                            }else {
+                                console.log("there was a problem");
+                            }
+
+                            // that.$$("paper-spinner").setAttribute("hidden", "true");
+                            
+                        }
+                    }
+                };
+            },
+            saveVideo: function () {
+                console.log("TODO Save Videos");
+            }
+        });
+    </script>
+</dom-module>
