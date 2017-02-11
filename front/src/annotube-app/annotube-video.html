@@ -55,6 +55,7 @@
             }
         </style>
 
+
         <iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/videos" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU"}'
             handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
 
@@ -63,8 +64,7 @@
                 <div class="playing_aera">
                     <div class="video_part">
                         <video-display class="video" video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
-                        <video-info author="{{author}}" " video-id="{{videoId}} " annotations="{{annotations}} " is-youtube="{{isYoutube}}
-                            " youtube-id="{{youtubeId}} "" video-name="{{videoName}}"></video-info>
+                        <video-info author = "{author}}" video-id="{{videoId}}" annotations="{{annotations}}" is-youtube="{{isYoutube}}" youtube-id="{{youtubeId}}" video-name="{{videoName}}"  thumbnail="{{thumbnail}}"></video-info>
                     </div>
 
                     <div class="link_part ">
@@ -106,30 +106,32 @@
                 comments: Object,
                 likes: Number,
                 likeId: String,
+                thumbnail: String,
             },
             ready: function () {
-                if (this.isYoutube == "false ") {
+                this.isYoutube = (this.isYoutube=="true");
+                if (!this.isYoutube) {
                     var that = this;
-                    var url = "https://node.edouardg.fr/video/ " + this.videoId;
-                    var param = " ";
+                    var url = "https://node.edouardg.fr/video/" + this.videoId;
 
                     var http = new XMLHttpRequest();
-                    http.open("GET ", url, true);
-                    http.setRequestHeader("Content-type ", "application/json; charset=utf-8 ");
+                    http.open("GET", url, true);
+                    http.setRequestHeader("Content-type", "application/json; charset=utf-8");
                     http.withCredentials = true;
-                    http.send(param);
+                    http.send();
 
                     http.onreadystatechange = function () {
                         if (http.readyState == 4) {
                             if (http.status == 200) {
 
                                 var res = JSON.parse(http.response);
-                                console.log("coco video ", res);
+                                console.log("coco video", res);
                                 that.youtubeId = res.youtube;
                                 that.videoName = res.name;
                                 that.author = res.author;
                                 that.annotations = res.annotations;
                                 that.comments = res.comments;
+                                that.thumbnail = res.thunbmail;
                                 that.likes;
                                 that.likeId;
 

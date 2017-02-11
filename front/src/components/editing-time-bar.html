@@ -1,0 +1,91 @@
+<!--
+Options of the user's account
+
+By: Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../components/user-banner.html">
+<link rel="import" href="./shared-styles.html">
+<link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
+
+
+<dom-module id="editing-time-bar">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      #time_bar{
+        display: block;
+        width: 100%;
+        background: darkgrey;
+        min-height: 40px;
+        max-height: 40%;
+        position: relative;
+      }
+      #player_bar{
+        position:absolute;
+        top:50%;
+        transform: translate(0, -50%);
+        left: 0;
+        width: 5px;
+        height: 110%;
+        background-color: #3367d6;
+        cursor: pointer;
+      }
+
+    </style>
+
+    <div id="time_bar">
+      <div id="player_bar" draggable="true" on-drag="coucou"></div>
+    </div>
+   
+  </template>
+
+  <script>
+    Polymer({
+      is: 'editing-time-bar',
+
+      properties: {
+        play: {
+          type: Boolean,
+          notify:true,
+          reflectToAttribute: true
+        },
+        currenttime:{
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+          observer: "_currenttime_changed"
+        },
+        duration:{
+          type: Number,
+          notify: true,
+          reflectToAttribute: true
+        }
+       
+      },
+      _currenttime_changed: function (before, after){
+        var left = (after*100)/(this.duration) + "%";
+        this.$.player_bar.style.left = left;
+      },
+      coucou: function(drag_evt){
+
+        var left = Number($(this.$.player_bar).css("left").split("px")[0]);
+
+        var offsetX = drag_evt.offsetX;
+        left += offsetX;
+        var size = this.$.time_bar.offsetWidth;
+
+        this.currenttime = (left/size)*this.duration;
+        
+
+      }
+    });
+
+
+  </script>
+</dom-module>
