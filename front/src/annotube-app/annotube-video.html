@@ -18,12 +18,12 @@ By: Mayl
             :host {
                 display: block;
             }
-
+            
             video-display {
                 position: relative;
                 width: 60%;
             }
-
+            
             video-comment {
                 position: relative;
                 width: 60%;
@@ -63,8 +63,9 @@ By: Mayl
                 likes: Number,
                 likeId: String,
             },
-            ready: function(){
-                if(!this.isYoutube){
+            ready: function () {
+                if (this.isYoutube == "false") {
+                    var that = this;
                     var url = "https://node.edouardg.fr/video/" + this.videoId;
                     var param = "";
 
@@ -80,13 +81,13 @@ By: Mayl
                                 console.log(http.responseText);
                                 var res = JSON.parse(http.response);
 
-                                this.youtubeId = res.youtube;
-                                this.videoName = res.name;
-                                this.author = res.author;
-                                this.annotations = res.annotations;
-                                this.comments = res.comments;
-                                this.likes;
-                                this.likeId;
+                                that.youtubeId = res.youtube;
+                                that.videoName = res.name;
+                                that.author = res.author;
+                                that.annotations = res.annotations;
+                                that.comments = res.comments;
+                                that.likes;
+                                that.likeId;
 
                             } else if (http.status == 400) {
                                 alert(JSON.parse(http.responseText).message);
@@ -107,7 +108,5 @@ By: Mayl
                 }
             }
         });
-
-
     </script>
 </dom-module>
