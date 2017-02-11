@@ -15,97 +15,103 @@ By: Mayl
     <style>
       :host {
         display: inline-block;
-        width:210px;
-        height:220px;
+        width: 210px;
+        height: 220px;
         overflow: hidden;
-        margin:10px;
+        margin: 10px;
         position: relative;
       }
-      .thumbnail{
+      
+      .thumbnail {
         width: 210px;
         height: 150px;
         background: black;
         overflow: hidden;
-        cursor:pointer;
+        cursor: pointer;
       }
-      .thumbnail:hover img{
+      
+      .thumbnail:hover img {
         min-width: 140%;
         max-height: 140%;
-        transition:all ease-out 0.5s;
+        transition: all ease-out 0.5s;
       }
-      .thumbnail img{
+      
+      .thumbnail img {
         min-width: 100%;
         max-height: 100%;
         position: relative;
-        left:50%;
-        top:50%;
-        transform: translate(-50%,-50%);
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
       }
-      p.title{
-          line-height: 1.1em;
-          overflow: hidden;
-          position: relative;
-          text-overflow: ellipsis;
-          max-height: 2.2em;
-          word-wrap: break-word;
-          -webkit-line-clamp: 2;
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          color:darkred;
-          font-weight: 900;
-          margin: 0;
-          margin-top: 4px;
-          cursor: pointer;
+      
+      p.title {
+        line-height: 1.1em;
+        overflow: hidden;
+        position: relative;
+        text-overflow: ellipsis;
+        max-height: 2.2em;
+        word-wrap: break-word;
+        -webkit-line-clamp: 2;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        color: darkred;
+        font-weight: 900;
+        margin: 0;
+        margin-top: 4px;
+        cursor: pointer;
       }
-      p.title:hover{
+      
+      p.title:hover {
         text-decoration: underline;
       }
-      p.author{
-        font-size:12px;
+      
+      p.author {
+        font-size: 12px;
         line-height: 13px;
         margin: 0;
         cursor: pointer;
       }
-      p.author:hover{
+      
+      p.author:hover {
         text-decoration: underline;
       }
-      p.notif{
+      
+      p.notif {
         margin: 0;
-        line-height: 16px
-        font-size: 14px;
+        line-height: 16px font-size: 14px;
       }
-      p.notif iron-icon{
-        --iron-icon-height : 13px;
+      
+      p.notif iron-icon {
+        --iron-icon-height: 13px;
         --iron-icon-width: 13px;
         margin-top: -4px;
         margin-left: 6px;
-
       }
-      p.notif iron-icon:first-child{
-        margin-left:0;
+      
+      p.notif iron-icon:first-child {
+        margin-left: 0;
       }
-
-      .privacy{
+      
+      .privacy {
         position: absolute;
-        top:0;
+        top: 0;
         right: 0;
-        --iron-icon-fill-color : white;
-        --iron-icon-stroke-color : black;
+        --iron-icon-fill-color: white;
+        --iron-icon-stroke-color: black;
       }
-
     </style>
 
-    <div class="video_thumbnail" >
+    <div class="video_thumbnail">
       <div class="thumbnail" on-tap="openVideo">
-        <img src ="[[videoObj.thunbmail]]" alt="thumbnail of [[videoObj.name]]"/>
+        <img src="[[videoObj.thunbmail]]" alt="thumbnail of [[videoObj.name]]" />
       </div>
       <div>
         <p class="title" on-tap="openVideo">[[videoObj.name]]</p>
         <p class="author" on-tap="openProfile">[[author]]</p>
         <p class="notif">
           <iron-icon icon="icons:favorite"></iron-icon>[[videoObj.like]]
-          <iron-icon icon="communication:chat-bubble"></iron-icon>[[videoObj.comment]]
-          [[time]]
+          <iron-icon icon="communication:chat-bubble"></iron-icon>[[videoObj.comment]] [[time]]
 
         </p>
       </div>
@@ -113,7 +119,7 @@ By: Mayl
     <template is="dom-if" if="[[videoObj.privacy]]">
       <iron-icon class="privacy" icon="icons:https"></iron-icon>
     </template>
-   
+
 
   </template>
 
@@ -127,41 +133,41 @@ By: Mayl
           reflectToAttribute: true,
         },
         author: {
-          type : String,
+          type: String,
           notify: true
         },
-        time:{
+        time: {
           type: String,
           notify: true
         }
       },
-      ready: function(){
+      ready: function () {
 
-        console.log("video", this.videoObj);
+        // console.log("video", this.videoObj);
         var that = this;
         var http = new XMLHttpRequest();
-        var url = "https://node.edouardg.fr/user/"+this.videoObj.author;
+        var url = "https://node.edouardg.fr/user/" + this.videoObj.author;
 
         http.open("GET", url, true);
         http.withCredentials = true;
         http.send();
         http.onreadystatechange = function () {
-            if (http.readyState == 4) {
-                if (http.status == 200) {
-                    var res = JSON.parse(http.response);
-                    that.author = res.username;
-                }
+          if (http.readyState == 4) {
+            if (http.status == 200) {
+              var res = JSON.parse(http.response);
+              that.author = res.username;
             }
+          }
         };
-        moment.lang('fr');
+        moment.locale('fr');
         var tmp = moment(this.videoObj.createdAt);
         this.time = tmp.fromNow();
       },
-      openVideo: function(){
-        document.location ="/video?videoId="+this.videoObj._id+"&isYoutube=false";
+      openVideo: function () {
+        document.location = "/video?videoId=" + this.videoObj._id + "&isYoutube=false";
       },
-      openProfile: function(){
-        document.location ="/profile?profile="+this.videoObj.author;
+      openProfile: function () {
+        document.location = "/profile?profile=" + this.videoObj.author;
       }
     });
   </script>

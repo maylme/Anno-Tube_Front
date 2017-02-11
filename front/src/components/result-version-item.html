@@ -7,6 +7,9 @@ By: Thomas Clop
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
+<script src="../../bower_components/moment/min/moment.min.js"></script>
+<script src="../../bower_components/moment/min/locales.min.js"></script>
+
 <dom-module id="result-version-item">
     <template>
         <style>
@@ -24,6 +27,7 @@ By: Thomas Clop
                 --iron-image-width: 100%;
                 --iron-image-height: auto;
                 float: left;
+                cursor: pointer;
                 border-radius: 3px;
             }
             
@@ -44,30 +48,40 @@ By: Thomas Clop
             
             .videoTitle {
                 font: bold 16pt 'lucida sans', 'trebuchet MS', 'Tahoma';
-                color: #424242;
+                color: darkred;
+                cursor: pointer;
                 margin: 0px;
             }
             
+            .videoTitle:hover {
+                text-decoration: underline;
+            }
+            
             .videoAuthorDate {
-                font: normal 11pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 margin: 5px 0px 0px 0px;
             }
             
-            .videoDescription {
-                font: normal 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
-                color: #424242;
-                margin: 5px 0px 0px 0px;
+            #date,
+            #author {
+                font: normal 11pt 'lucida sans', 'trebuchet MS', 'Tahoma';
+            }
+            
+            #author {
+                text-decoration: none;
+                color: darkred;
+            }
+            
+            #author:hover {
+                text-decoration: underline;
             }
             
             @media screen and (max-width: 1080px) {
                 .videoTitle {
                     font: bold 14pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
-                .videoAuthorDate {
+                #date,
+                #author {
                     font: normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
-                }
-                .videoDescription {
-                    font: normal 12pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
             }
             
@@ -75,11 +89,9 @@ By: Thomas Clop
                 .videoTitle {
                     font: bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
-                .videoAuthorDate {
+                #date,
+                #author {
                     font: normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
-                }
-                .videoDescription {
-                    font: normal 10pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 }
             }
             
@@ -88,11 +100,9 @@ By: Thomas Clop
                     font: bold 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                     margin: 5px 0 0 0;
                 }
-                .videoAuthorDate {
+                #date,
+                #author {
                     font: normal 9pt 'lucida sans', 'trebuchet MS', 'Tahoma';
-                }
-                .videoDescription {
-                    display: none;
                 }
                 .thumbnails {
                     width: 100%;
@@ -114,8 +124,9 @@ By: Thomas Clop
                     <iron-image class="thumbnails" src="{{videoItem.thunbmail}}"></iron-image>
                     <div class="videoInformations">
                         <p class="videoTitle">{{videoItem.name}}</p>
-                        <p id="authorDate" class="videoAuthorDate"></p>
-                        <p class="videoDescription">{{videoItem.description}}</p>
+                        <p class="videoAuthorDate">
+                            <a id="author" href="/profile?profile=[[videoItem.author]]"></a><span id="date"></span>
+                        </p>
                     </div>
                 </div>
                 <hr />
@@ -132,16 +143,17 @@ By: Thomas Clop
                 }
             },
             playVideo: function (event) {
-                var url = "/video?videoId=" + this.videoItem._id + "&isYoutube=false";
-                document.location = url;
+                if (!(event.target.tagName == "A")) {
+                    var url = "/video?videoId=" + this.videoItem._id + "&isYoutube=false";
+                    document.location = url;
+                }
             },
             init: function (result) {
-                var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-                var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-                var date = new Date(this.videoItem.createdAt);
-                this.videoItem.createdAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
-                this.$.authorDate.innerHTML = result.detail.response.username + ", le " + this.videoItem.createdAt;
-                this.videoItem.author = result.detail.response.username;
+                moment.locale('fr');
+                var tmp = moment(this.videoItem.createdAt);
+                this.videoItem.createdAt = tmp.fromNow();
+                this.$.author.innerHTML = result.detail.response.username;
+                this.$.date.innerHTML = ", " + tmp.fromNow();
             }
         });
     </script>
