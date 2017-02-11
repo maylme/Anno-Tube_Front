@@ -145,7 +145,7 @@
         // }
       },
 
-      _pageChanged: function (page) {
+      _pageChanged: function (page, oldPage) {
         // Load page import on demand. Show 404 page if fails
         if (
           (page == "profile" && this.queryParams.profile === undefined) ||
@@ -154,6 +154,11 @@
           console.log("prout");
           this._showPageForbidden();
         }
+
+        if(oldPage == "video"){
+          console.log($('#video')[0].pause());
+        }
+
         if (!this.userId) {
           if (page == "options" ||
             page == "myvideos") {
