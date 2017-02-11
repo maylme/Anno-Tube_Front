@@ -73,8 +73,6 @@ By: Mayl
         profileId:{
           type: String,
           notify: true,
-          reflectToAttribute: true,
-          observer: '_userIdLoaded'
         },
         profileBackground_img: {
           type: String,
@@ -85,11 +83,11 @@ By: Mayl
           notify: true,
         }
       },
-      _userIdLoaded : function(){
+      ready : function(){
         console.log("composant", this.profileId);
         var that = this;
         var http = new XMLHttpRequest();
-        var url = "https://node.edouardg.fr/user/"+this.profileId;
+        var url = "https://node.edouardg.fr/user/me";
 
         http.open("GET", url, true);
         http.withCredentials = true;
@@ -100,6 +98,7 @@ By: Mayl
                     var res = JSON.parse(http.response);
                     that.profilePseudo = res.username;
                     //that.profileImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
+                    that.profileId = res._id;
                     if (res.website){
                       that.profileWebsite= res.website;
                       that.getVideos();
