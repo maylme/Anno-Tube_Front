@@ -57,7 +57,7 @@
             <div class="playing_aera">
                 <div class = "video_part">
                     <video-display class="video" video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
-                    <video-info author = {{author}} video-id="{{videoId}}" annotations="{{annotations}}"" is-youtube="{{isYoutube}}" youtube-id={{youtubeId}} video-name="{{videoName}}"></video-info>
+                    <video-info author = "{author}}" video-id="{{videoId}}" annotations="{{annotations}}" is-youtube="{{isYoutube}}" youtube-id="{{youtubeId}}" video-name="{{videoName}}"  thumbnail="{{thumbnail}}"></video-info>
                 </div><!--
                 --><div class = "link_part">
                      <div class= "pd16">partie des liens wikipedia
@@ -96,6 +96,7 @@
                 comments: Object,
                 likes: Number,
                 likeId: String,
+                thumbnail: String,
             },
             ready: function () {
                 if (this.isYoutube == "false") {
@@ -120,6 +121,7 @@
                                 that.author = res.author;
                                 that.annotations = res.annotations;
                                 that.comments = res.comments;
+                                that.thumbnail = res.thunbmail;
                                 that.likes;
                                 that.likeId;
 

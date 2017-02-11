@@ -94,6 +94,11 @@ By: Corentin Hardy
         Polymer({
             is: 'video-info',
             properties: {
+                annotations:{
+                    type: Object, 
+                    notify: true,
+                    reflectToAttribute: true
+                },
                 author: {
                     type: Object, 
                     notify: true,
@@ -107,6 +112,11 @@ By: Corentin Hardy
                 videoId: {
                     type: String,
                     value: "CIbfdfBeVLY",
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                thumbnail:{
+                    type: String,
                     notify: true,
                     reflectToAttribute: true
                 },
@@ -288,35 +298,40 @@ By: Corentin Hardy
                 };
             },*/
             edit: function () {
-                console.log("isYoutube", this.isYoutube);
                 /* first create new annoted video with the youtube Id */
-                if (this.isYoutube){
-                    var params = {
-                        "name": "Copie de " + this.videoName,
-                        "youtube": this.youtubeId,
-                        "thunbmail": "null",
-                        "privacy": true
-                    };
+                var params = JSON.stringify({
+                    "name": "Copie de " + this.videoName,
+                    "youtube": this.youtubeId,
+                    "thunbmail": this.thumbnail,
+                    "privacy": true
+                });
 
-                    console.log("params", params);
-                    var that = this;
-                    var url = "https://node.edouardg.fr/video";
+                console.log("params", params);
+                var that = this;
+                var url = "https://node.edouardg.fr/video";
 
-                    var http = new XMLHttpRequest();
-                    http.open("POST", url, true);
-                    http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-                    http.withCredentials = true;
-                    http.send(params);
-                    http.onreadystatechange = function () {
-                        if (http.readyState == 4) {
-                            if (http.status == 200) {
-                                var res = JSON.parse(http.response);
-                                console.log(res);
-                                document.location= "/edit?edit=res._id";
-                            }
+                var http = new XMLHttpRequest();
+                http.open("POST", url, true);
+                http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                http.withCredentials = true;
+                
+                http.onreadystatechange = function () {
+                    if (http.readyState == 3 && http.status == 201) {
+                        var res = JSON.parse(http.response);
+
+                        console.log(res._id);
+                        if (that.isYoutube){
+                            document.location = "/edit?videoId="+res._id;
+                        }else{
+                            console.log(that.annotations);
                         }
-                    };
-                }
+
+                    }else if (http.status == 400){
+                        console.log("reponse", http.responseText);
+                    }
+                };
+                http.send(params);
+
             }
         });
     </script>
