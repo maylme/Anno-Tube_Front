@@ -1,7 +1,6 @@
 <!--
-Notification page
-
-By: Mayl
+    Page of the playing video (youtube or annoted one)
+    By: Corentin Hardy 
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
@@ -76,9 +75,9 @@ By: Mayl
                     http.send(param);
 
                     http.onreadystatechange = function () {
+                        console.log("STATUS", http.status);
                         if (http.readyState == 4) {
                             if (http.status == 200) {
-                                console.log(http.responseText);
                                 var res = JSON.parse(http.response);
 
                                 that.youtubeId = res.youtube;
@@ -93,6 +92,8 @@ By: Mayl
                                 alert(JSON.parse(http.responseText).message);
                             } else if (http.status == 500) {
                                 console.log("The server has encountered a situation it doesn't know how to handle.");
+                            } else if (http.status == 403){
+                                document.location("/forbidden");
                             }
                         }
                     }

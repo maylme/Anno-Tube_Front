@@ -7,6 +7,8 @@ By: Mayl
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
+<script src="../../bower_components/moment/min/moment.min.js"></script>
+<script src="../../bower_components/moment/min/locales.min.js"></script>
 
 <dom-module id="video-thumbnail">
   <template>
@@ -103,6 +105,8 @@ By: Mayl
         <p class="notif">
           <iron-icon icon="icons:favorite"></iron-icon>[[videoObj.like]]
           <iron-icon icon="communication:chat-bubble"></iron-icon>[[videoObj.comment]]
+          [[time]]
+
         </p>
       </div>
     </div>
@@ -120,10 +124,20 @@ By: Mayl
         videoObj: {
           type: Object,
           notify: true,
-          reflectToAttribute: true
+          reflectToAttribute: true,
         },
+        author: {
+          type : String,
+          notify: true
+        },
+        time:{
+          type: String,
+          notify: true
+        }
       },
       ready: function(){
+
+        console.log("video", this.videoObj);
         var that = this;
         var http = new XMLHttpRequest();
         var url = "https://node.edouardg.fr/user/"+this.videoObj.author;
@@ -139,9 +153,12 @@ By: Mayl
                 }
             }
         };
+        moment.lang('fr');
+        var tmp = moment(this.videoObj.createdAt);
+        this.time = tmp.fromNow();
       },
       openVideo: function(){
-        document.location ="/video?videoId="+this.videoObj._id;
+        document.location ="/video?videoId="+this.videoObj._id+"&isYoutube=false";
       },
       openProfile: function(){
         document.location ="/profile?profile="+this.videoObj.author;

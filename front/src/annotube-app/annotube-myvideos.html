@@ -1,5 +1,5 @@
 <!--
-Notification page
+Page : myvideos, list all your annoted videos
 
 By: Mayl
 -->
@@ -101,14 +101,15 @@ By: Mayl
                     that.profileId = res._id;
                     if (res.website){
                       that.profileWebsite= res.website;
-                      that.getVideos();
                     }
                     if (res.description){
                       that.profileDescription= res.description;
                     }
                     if (res.youtube_chanel){
                       that.profileYoutube_chanel= res.youtube_chanel;
-                    }                    
+                    }
+                    that.getVideos();
+                    
                 }
             }
         };
@@ -123,7 +124,7 @@ By: Mayl
         }
       },
       getVideos: function(){
-         var that = this;
+        var that = this;
         var http = new XMLHttpRequest();
         var url = "https://node.edouardg.fr/user/me/video";
 
