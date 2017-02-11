@@ -5,6 +5,7 @@
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../components/video-display.html">
 <link rel="import" href="../components/video-info.html">
 <link rel="import" href="../components/video-comment.html">
@@ -28,13 +29,17 @@
                 width: 60%;
             }
         </style>
-        <div class="card pd16">
-            <video-display class="video" video-id="{{youtubeId}}"></video-display>
-            <video-info video-id="{{videoId}}" is-youtube="{{isYoutube}}"></video-info>
-            <template is="dom-repeat" items="{{comments}}">
-                <video-comment video-id="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
-            </template>
-        </div>
+
+        <iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/videos" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU"}'
+            handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
+
+            <div class="card pd16">
+                <video-display class="video" video-id="{{youtubeId}}"></video-display>
+                <video-info video-id="{{videoId}}" is-youtube="{{isYoutube}}"></video-info>
+                <template is="dom-repeat" items="{{comments}}">
+                    <video-comment video-id="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
+                </template>
+            </div>
 
     </template>
 
@@ -92,12 +97,14 @@
                                 alert(JSON.parse(http.responseText).message);
                             } else if (http.status == 500) {
                                 console.log("The server has encountered a situation it doesn't know how to handle.");
-                            } else if (http.status == 403){
+                            } else if (http.status == 403) {
                                 document.location("/forbidden");
                             }
                         }
                     }
                 } else {
+                    this.$.ajax.params.id = this.videoId;
+                    this.$.ajax.generateRequest();
                     this.youtubeId = this.videoId;
                     this.videoId = "";
                     this.videoName = "";
@@ -107,6 +114,9 @@
                     this.likes;
                     this.likeId;
                 }
+            },
+            youtubeResponse: function (result) {
+                console.log('youtube', result.detail.response);
             }
         });
     </script>
