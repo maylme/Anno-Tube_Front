@@ -1,6 +1,6 @@
 <!--
     Page of the playing video (youtube or annoted one)
-    By: Corentin Hardy 
+    By: Corentin Hardy & Nicolas Forget
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
@@ -20,17 +20,52 @@
             
             video-display {
                 position: relative;
-                width: 60%;
+                width: 100%;
             }
             
             video-comment {
                 position: relative;
                 width: 60%;
             }
+            .playing_aera{
+                width: 100%;
+                display:inline-flex;
+                padding-bottom: 10px;
+                border-bottom: dashed 1px lightgrey;
+                position: relative;
+            }
+           
+            .video_part{
+                width: 60%;
+                display: inline-block;
+                margin: 0;
+                padding:0;
+            }
+
+            .link_part{
+                width: 40%;
+                margin: 0;
+                padding:15px;
+            }
+
+            .link_part div{
+                border:solid grey 1px;
+            }
         </style>
         <div class="card pd16">
-            <video-display class="video" video-id="{{youtubeId}}"></video-display>
-            <video-info video-id="{{videoId}}" is-youtube="{{isYoutube}}"></video-info>
+            <h1>[[videoName]]</h1>
+            <div class="playing_aera">
+                <div class = "video_part">
+                    <video-display class="video" video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
+                    <video-info author = {{author}} video-id="{{videoId}}" annotations="{{annotations}}"" is-youtube="{{isYoutube}}" youtube-id={{youtubeId}} video-name="{{videoName}}"></video-info>
+                </div><!--
+                --><div class = "link_part">
+                     <div class= "pd16">partie des liens wikipedia
+                     </div>
+                </div>
+            </div>
+
+
             <template is="dom-repeat" items="{{comments}}">
                 <video-comment video-id="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
             </template>
@@ -56,7 +91,7 @@
                 },
                 youtubeId: String,
                 videoName: String,
-                author: Object, //"_id": "updatedAt": "createdAt": "email": "username"
+                author: Object,
                 annotations: Object,
                 comments: Object,
                 likes: Number,
@@ -75,11 +110,11 @@
                     http.send(param);
 
                     http.onreadystatechange = function () {
-                        console.log("STATUS", http.status);
                         if (http.readyState == 4) {
                             if (http.status == 200) {
-                                var res = JSON.parse(http.response);
 
+                                var res = JSON.parse(http.response);
+                                console.log("coco video", res);
                                 that.youtubeId = res.youtube;
                                 that.videoName = res.name;
                                 that.author = res.author;
@@ -92,8 +127,8 @@
                                 alert(JSON.parse(http.responseText).message);
                             } else if (http.status == 500) {
                                 console.log("The server has encountered a situation it doesn't know how to handle.");
-                            } else if (http.status == 403){
-                                document.location("/forbidden");
+                            } else if (http.status == 401){
+                                document.location ="/forbidden";
                             }
                         }
                     }

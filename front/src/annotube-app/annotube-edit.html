@@ -1,0 +1,47 @@
+<!--
+Options of the user's account
+
+By: Mayl & Edouard
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../components/user-banner.html">
+<link rel="import" href="./shared-styles.html">
+<link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
+
+
+<dom-module id="annotube-edit">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+   <div class="card pd16">
+
+      Id : [[videoId]]
+
+   </div>
+   
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotube-edit',
+
+      properties: {
+        videoId :{
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        }
+        
+      },
+    });
+
+
+  </script>
+</dom-module>

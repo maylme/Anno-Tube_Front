@@ -78,7 +78,8 @@ Entry point of the app, containt routing
             <annotube-video video-id="[[queryParams.videoId]]" is-youtube="[[queryParams.isYoutube]]" name="video"></annotube-video>
 
             <annotube-myvideos profile-id=[ [userId]] name="myvideos"></annotube-myvideos>
-            <annotube-video-display name="video-display"></annotube-video-display>
+            
+            <annotube-edit name="edit" video-id ="[[queryParams.videoId]]"></annotube-edit>
             <!-- there include other views -->
             <annotube-view404 name="view404"></annotube-view404>
             <annotube-forbidden name="forbidden"></annotube-forbidden>
@@ -155,7 +156,8 @@ Entry point of the app, containt routing
         // Load page import on demand. Show 404 page if fails
         if (
           (page == "profile" && this.queryParams.profile === undefined) ||
-          (page == "video" && this.queryParams.videoId === undefined)
+          (page == "video" && this.queryParams.videoId === undefined) ||
+          (page == "edit" && this.queryParams.videoId === undefined)
         ) {
           this._showPageForbidden();
         }
