@@ -6,10 +6,11 @@ Pour lancer le front:
 	- bower install;
 	- polymer serve --open
 	
-Vous trouverez en en-tête de chaque fichier, les élèves qui on travaillé dessus. 
-Pour plus de detail, referez vous au fluc git. 
+Vous trouverez en en-tête de chaque fichier, les élèves qui ont travaillés dessus. 
+Pour plus de details, referez vous au flux git. 
 
 Pour tout problème ou demande d'information suplémentaire, vous pouvez contacter maylme par git. 
+
 # Routing et ajout de page
 
 Allez dans annotube-app.html. C'est le fichier "mère". La base de toutes les pages polymer.
