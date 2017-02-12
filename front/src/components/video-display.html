@@ -51,6 +51,9 @@ By: Corentin Hardy & Mayl
                 position: relative;
                 background-color: black;
             }
+            .videoControl-close {
+                display: none;
+            }
             #videoControl {
                 z-index: 102;
                 bottom: 0;
@@ -108,7 +111,7 @@ By: Corentin Hardy & Mayl
         <fullscreen-api id="fullscreenApi" target="#videoComponent"></fullscreen-api>
         <div id="videoComponent">
             <div class="canvas">
-                <canvas id="canvas"></canvas>
+                <canvas id="canvas" on-mouseenter='openControl' on-mouseout='closeControl'></canvas>
             </div>
             <div class="youtube">
                 <google-youtube
@@ -130,7 +133,7 @@ By: Corentin Hardy & Mayl
                       start:number start at this time in second-->
                 </google-youtube>
             </div>
-            <div id="videoControl" class="videoControl-in">
+            <div id="videoControl" class="videoControl-in" on-mouseenter="keepOpenControl" on-mouseout="openControl">
                 <paper-slider 
                     id="timeBar" 
                     value="{{currenttime}}" 
@@ -271,6 +274,10 @@ By: Corentin Hardy & Mayl
                     notify: true,
                     reflectToAttribute: true
                 },
+                _isControlClose: {
+                    type: Number,
+                    value: 0
+                },
                 _play_icon: {
                     type: String,
                     readOnly: true,
@@ -314,6 +321,8 @@ By: Corentin Hardy & Mayl
                     this.$.videoControl.classList.add("videoControl-out");
                 }
                 console.log("videoId init: ", this.videoId);
+
+                this.closeControl();
 
             },
             _videoIdChanged: function (old, news, target) {
@@ -431,6 +440,8 @@ By: Corentin Hardy & Mayl
                 this.fire('video-state-change', e);
             },
             videoControlChange: function (isControlOut) {
+                if((this._isControlClose%2) == 1)
+                    return;
                 if(isControlOut){
                     this.$.videoControl.classList.remove("videoControl-in")
                     this.$.videoControl.classList.add("videoControl-out");
@@ -439,6 +450,46 @@ By: Corentin Hardy & Mayl
                     this.$.videoControl.classList.add("videoControl-in")
                 }
 
+            },
+            openControl: function(e) {
+                if(this.isControlOut)
+                    return;
+                this._isControlClose += 2;
+                if((this._isControlClose%2) == 1){
+                    this._isControlClose += 1;
+                    this.$.videoControl.classList.remove("videoControl-close");
+                }
+                console.log("open videoControl-open: ", this._isControlClose);
+                var _isControlCloseCurrent = this._isControlClose;
+                var that = this;
+                setTimeout(function() {
+                    console.log("close in open? ", _isControlCloseCurrent, that._isControlClose);
+                    if(_isControlCloseCurrent == that._isControlClose){
+                        that._isControlClose += 1;
+                        that.$.videoControl.classList.add("videoControl-close");
+                    }
+                }, 5000);
+            },
+            keepOpenControl: function(e) {
+                this.openControl();
+                this._isControlClose += 2;
+                console.log("keep open")
+            },
+            closeControl: function(e) {
+                if(this.isControlOut)
+                    return;
+                if((this._isControlClose%2) == 0){
+                    console.log("close videoControl-close: ", this._isControlClose);
+                    var _isControlCloseCurrent = this._isControlClose;
+                    var that = this;
+                    setTimeout(function() {
+                        console.log("close? ", _isControlCloseCurrent, that._isControlClose);
+                        if(_isControlCloseCurrent == that._isControlClose){
+                            that._isControlClose += 1;
+                            that.$.videoControl.classList.add("videoControl-close");
+                        }
+                    }, 2000);
+                }
             },
             _renderCanvas: function(oldval, newval){
                 var currentAnnotations = [];
