@@ -97,7 +97,6 @@ By: Mayl
                 if (http.status == 200) {
                     var res = JSON.parse(http.response);
                     that.profilePseudo = res.username;
-                    //that.profileImg = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
                     that.profileId = res._id;
                     if (res.website){
                       that.profileWebsite= res.website;
@@ -107,6 +106,12 @@ By: Mayl
                     }
                     if (res.youtube_chanel){
                       that.profileYoutube_chanel= res.youtube_chanel;
+                    }
+                    if( res.avatar) {
+                      that.profileImg = res.avatar; 
+                    }
+                    if( res.background) {
+                      that.profileBackground_img = res.background; 
                     }
                     that.getVideos();
                     
