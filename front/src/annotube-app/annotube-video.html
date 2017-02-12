@@ -1,11 +1,13 @@
 <!--
-Notification page
-
-By: Mayl
+    Page of the playing video (youtube or annoted one)
+    By: Corentin Hardy & Nicolas Forget
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
 <link rel="import" href="../components/video-display.html">
 <link rel="import" href="../components/video-info.html">
 <link rel="import" href="../components/video-comment.html">
@@ -14,28 +16,91 @@ By: Mayl
 
 <dom-module id="annotube-video">
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles" is="custom-style">
             :host {
                 display: block;
             }
             
             video-display {
                 position: relative;
-                width: 60%;
+                width: 100%;
             }
             
             video-comment {
                 position: relative;
                 width: 60%;
             }
+            
+            .playing_aera {
+                width: 100%;
+                display: inline-flex;
+                padding-bottom: 10px;
+                border-bottom: dashed 1px lightgrey;
+                position: relative;
+            }
+            
+            .video_part {
+                width: 60%;
+                display: inline-block;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .link_part {
+                width: 40%;
+                margin: 0;
+                padding: 16px;
+                padding-top: 0;
+            }
+            
+            .link_part iron-icon {
+                --iron-icon-height: 32px;
+                --iron-icon-width: 32px;
+                cursor:pointer;
+
+                --iron-icon: {
+                    position: absolute;
+                    top: -22px;
+                    right: 0px;
+                    background: darkred;
+                    padding: 10px;
+                    border-radius: 50%;
+                    color: white;
+                    transform:rotate(45deg);
+                }
+            }
         </style>
-        <div class="card pd16">
-            <video-display class="video" video-id="{{youtubeId}}"></video-display>
-            <video-info video-id="{{videoId}}" is-youtube="{{isYoutube}}"></video-info>
-            <template is="dom-repeat" items="{{comments}}">
-                <video-comment video-id="{{videoId}}" com-id="{{item._id}}" com-name="{{item.author.username}}" com-pic="" com-text="{{item.text}}"></video-comment>
-            </template>
-        </div>
+
+
+        <iron-ajax id="ajax" url="https://www.googleapis.com/youtube/v3/videos" params='{"part":"snippet", "key": "AIzaSyC9geJJJDJxUnFc6890jzFq9yBJsBEzJuU"}'
+            handle-as="json" last-response="{{response}}" debounce-duration="300" on-response="youtubeResponse"></iron-ajax>
+
+            <div class="card pd16">
+                <h1>[[videoName]]</h1>
+                <div class="playing_aera">
+                    <div class="video_part">
+                        <video-display class="video" currenttime={{currenttime}} video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
+                        <video-info author = "{{author}}" video-id="{{videoId}}" annotations="{{annotations}}" is-youtube="{{isYoutube}}" youtube-id="{{youtubeId}}" video-name="{{videoName}}"  thumbnail="{{thumbnail}}"></video-info>
+                    </div>
+
+                    <div class="link_part">
+                        <iframe src ="{{currentLink}}" width="100%" height="100%">
+                          <p>Your browser does not support iframes.</p>
+                        </iframe>
+                        <template is="dom-if" if="{{currentLink}} ">
+                            <iron-icon on-tap="goToLink" icon="icons:link"></iron-icon>
+                        </template>
+
+                    </div>
+                </div>
+
+
+                <template is="dom-repeat " items="{{comments}} ">
+                    <video-comment video-id="{{videoId}} " com-id="{{item._id}} " com-name="{{item.author.username}}
+                            " com-pic=" " com-text="{{item.text}} "></video-comment>
+                </template>
+            </div>
+
 
     </template>
 
@@ -55,48 +120,64 @@ By: Mayl
                     reflectToAttribute: true,
                     value: false
                 },
+                currenttime:{
+                    type:String,
+                    notify:true,
+                    observer: "_timeChanged",
+                },
                 youtubeId: String,
                 videoName: String,
-                author: Object, //"_id": "updatedAt": "createdAt": "email": "username"
-                annotations: Object,
+                author: Object,
+                annotations: Array,
+                currentLink:{
+                    type:String,
+                    notify: true,
+                    value: "",
+                },
                 comments: Object,
                 likes: Number,
                 likeId: String,
+                thumbnail: String,
             },
             ready: function () {
-                if (this.isYoutube == "false") {
+                this.isYoutube = (this.isYoutube=="true");
+                if (!this.isYoutube) {
                     var that = this;
                     var url = "https://node.edouardg.fr/video/" + this.videoId;
-                    var param = "";
 
                     var http = new XMLHttpRequest();
                     http.open("GET", url, true);
                     http.setRequestHeader("Content-type", "application/json; charset=utf-8");
                     http.withCredentials = true;
-                    http.send(param);
+                    http.send();
 
                     http.onreadystatechange = function () {
                         if (http.readyState == 4) {
                             if (http.status == 200) {
-                                console.log(http.responseText);
-                                var res = JSON.parse(http.response);
 
+                                var res = JSON.parse(http.response);
+                                console.log("coco video", res);
                                 that.youtubeId = res.youtube;
                                 that.videoName = res.name;
                                 that.author = res.author;
                                 that.annotations = res.annotations;
                                 that.comments = res.comments;
+                                that.thumbnail = res.thunbmail;
                                 that.likes;
                                 that.likeId;
-
                             } else if (http.status == 400) {
                                 alert(JSON.parse(http.responseText).message);
                             } else if (http.status == 500) {
-                                console.log("The server has encountered a situation it doesn't know how to handle.");
+                                console.log("The server has encountered a situation it doesn 't know how to handle.");
+                            } else if (http.status == 401) {
+                                document.location = "/forbidden";
+
                             }
                         }
                     }
                 } else {
+                    this.$.ajax.params.id = this.videoId;
+                    this.$.ajax.generateRequest();
                     this.youtubeId = this.videoId;
                     this.videoId = "";
                     this.videoName = "";
@@ -106,6 +187,26 @@ By: Mayl
                     this.likes;
                     this.likeId;
                 }
+            },
+            youtubeResponse: function (result) {
+                this.videoName = result.detail.response.items[0].snippet.title;
+                this.thumbnail = result.detail.response.items[0].snippet.thumbnails.medium.url;
+            },
+            _timeChanged: function (){
+                if (this.annotations){
+                    for (var i = 0; i < this.annotations.length; i++){
+                        if (this.annotations[i].shape.type=="link"){
+                            if (this.annotations[i].time_start <= this.currenttime ||
+                                this.annotations[i].time_end >= this.currenttime){
+                                this.currentLink = this.annotations[i].text;
+                            }
+                        }
+                    }
+                }
+                
+            },
+            goToLink: function(){
+                window.open(this.currentLink,'_blank');
             }
         });
     </script>

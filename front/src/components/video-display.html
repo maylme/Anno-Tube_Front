@@ -1,3 +1,8 @@
+<!--
+Video display component 
+By: Corentin Hardy & Mayl
+-->
+
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
@@ -18,9 +23,12 @@
             .youtube {
                 z-index: 100;
             }
-            .canvas{
+            #canvas{
                 z-index: 101;
                 position: absolute;
+                /*background-color: rgba(0,0,0, 0.8);*/
+                width: 100%;
+                height: 100%;
             }
             #videoComponent{
                 {{ isFullScreened?"
@@ -82,6 +90,7 @@
             }
             .canvas, .youtube {
                 width: 100%;
+                height: 100%
             }
             /*.videoComponent[_isNextVideo] >*/ #videoControl > #next {
                 display: none;
@@ -113,7 +122,6 @@
                         currenttimeformatted="{{currenttimeformatted}}"
                         duration="{{duration}}"
                         durationformatted="{{durationformatted}}"
-
                        >
                     <!--
                       video-id="SJubeTlS9CQ" id d'une video youtube directe
@@ -160,6 +168,11 @@
              */
 
             properties: {
+                annotations:{
+                    type: Array,
+                    notify: true,
+                    reflectToAttribute: true
+                },
                 videoId: {
                     type: String,
                     notify: true,
@@ -223,7 +236,14 @@
                 currenttime: {
                     type: Number,
                     notify: true,
-                    reflectToAttribute: true 
+                    reflectToAttribute: true,
+                    observer: "_renderCanvas"
+                },
+                foreigntime: {
+                    type: Number,
+                    notify: true,
+                    reflectToAttribute: true,
+                    observer: "_setCurrenttime"
                 },
                 currenttimeformatted: {
                     type: String,
@@ -279,7 +299,7 @@
             },
             listeners: {
                 'volume.change': 'volumeChanged',
-                'timeBar.change': 'setTime',
+                'timeBar.change': "setTime",
                 'video.google-youtube-ready' : 'videoReady',
                 'video.google-youtube-state-change' : 'videoStateChange'
             },
@@ -296,8 +316,9 @@
                 console.log("videoId init: ", this.videoId);
 
             },
-            _videoIdChanged: function () {
-                console.log("videoId changed: ", this.videoId);
+            _videoIdChanged: function (old, news, target) {
+
+                console.log("videoId changed: ", old, news, target);
             },
             play: function () {
                 console.log("play / pause: ", this.state);
@@ -308,8 +329,22 @@
                     this.$.video.pause();
                 } 
             },
-            setTime: function () {
-                console.log("clicked on ", this.currenttime, " / ", this.duration);
+            _setCurrenttime: function(newv, oldv){
+                //this.currenttime = newv;
+                if (newv >= 0){
+                    $(this.$.timeBar).val(newv);
+                    $(this.$.timeBar).change();
+                    this.setTime();
+                }
+                // if (!((oldv-newv)==-1 || (oldv-newv)==1)){
+                //     console.log("seek");
+                //     this.$.video.seekTo(this.currenttime);
+                // }
+            },
+            setTime: function (event) {
+                //this._setCurrenttime(0,this.currenttime);
+                console.log("bar change", event);
+                //console.log("clicked on ", this.currenttime, " / ", this.duration);
                 this.$.video.seekTo(this.currenttime);
             },
             mute: function () {
@@ -404,7 +439,136 @@
                     this.$.videoControl.classList.add("videoControl-in")
                 }
 
+            },
+            _renderCanvas: function(oldval, newval){
+                var currentAnnotations = [];
+                var that=this;
+                if (this.annotations){
+                    for (var i = 0; i < this.annotations.length; i++){
+                        if( (this.annotations[i].time_start <= oldval ) && 
+                            (this.annotations[i].time_end >= oldval ) ){
+                            currentAnnotations.push(this.annotations[i]);
+                        }
+                    }
+
+                    var context = this.$.canvas.getContext('2d');
+                    var width = this.$.canvas.width;
+                    var height = this.$.canvas.height;
+
+                    context.clearRect(0, 0, width, height);
+                    for (var j = 0; j < currentAnnotations.length;j++){
+                        var shape = currentAnnotations[j].shape;
+                        /* NB : assume that all sizes and positions are in % of the actual canvas width for responsive*/
+                        switch(shape.type){
+                            case "square":
+                                that._drawRect( shape);
+                                break;
+                            case "round":
+                                that._drawRound( shape);
+                                break;
+                            case "text":
+                                that._drawText( shape, currentAnnotations[j].text);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // if(shape==2){
+                        //     contexte.beginPath();
+                        //     contexte.arc(x,y,30,0,Math.PI*2,true);
+
+                        //     contexte.closePath();
+                        //     contexte.stroke();
+                        // }else if (shape==3){
+                        //     contexte.beginPath();
+                        //     contexte.rect(x,y,30,30);
+                        //     contexte.stroke();
+                        //     contexte.closePath();
+                        // }else if(shape==1){
+                        //     contexte.font="20px Georgia";
+                        //     contexte.fillText(document.getElementById("text").value,x,y);
+                        // }
+                    }
+                }
+            },
+            _drawRect: function(shape){
+                var context = this.$.canvas.getContext('2d');
+                var width = this.$.canvas.width;
+                var height = this.$.canvas.height;
+                context.beginPath();
+                /*default*/
+                context.fillStyle="transparant";
+                context.strokeStyle= "#000";
+                var size = (20/100)*width;
+                var lineWidth = (3/100)*width;
+                var x = (shape.position_x/100)*width;
+                var y = (shape.position_y/100)*width;
+
+                if (shape.size){
+                    size = (shape.size/100)*width;
+                }
+                if (shape.stroke_thikness){
+                    lineWidth = (shape.stroke_thikness/100)*width;
+                }
+                if (shape.fill){
+                    context.fillStyle=shape.fill;
+                }
+                context.fillRect(x,y,size,size);
+                if(shape.stroke){
+                    context.strokeStyle=shape.stroke;
+                }
+                context.lineWidth = lineWidth;
+                
+                context.strokeRect(x,y,size,size);
+                context.closePath();
+            },
+            _drawRound: function(shape){
+                var context = this.$.canvas.getContext('2d');
+                var width = this.$.canvas.width;
+                var height = this.$.canvas.height;
+                context.beginPath();
+                context.fillStyle="transparant";
+                context.strokeStyle= "#000";
+                var size = (20/100)*width;
+                var lineWidth = (3/100)*width;
+                var x = (shape.position_x/100)*width;
+                var y = (shape.position_y/100)*width;
+                 if (shape.size){
+                    size = (shape.size/100)*width;
+                }
+                if (shape.stroke_thikness){
+                    lineWidth = (shape.stroke_thikness/100)*width;
+                }
+                if (shape.fill){
+                    context.fillStyle=shape.fill;
+                }
+                context.arc(x,y,size,0,Math.PI*2,true);
+                context.fill();
+                if(shape.stroke){
+                    context.strokeStyle=shape.stroke;
+                }
+                context.arc(x,y,size,0,Math.PI*2,true);
+                context.stroke();
+                context.closePath();
+
+            },
+            _drawText: function(shape, text){
+
+                var context = this.$.canvas.getContext('2d');
+                var width = this.$.canvas.width;
+                var height = this.$.canvas.height;
+                context.beginPath();
+                context.fillStyle="transparant";
+                context.strokeStyle= "#000";
+                var x = (shape.position_x/100)*width;
+                var y = (shape.position_y/100)*width;
+                console.log(x,y);
+                context.font="20px Georgia";
+
+                context.fillText(text,x,y);
+                context.closePath();
             }
+
         });
     </script>
 </dom-module>

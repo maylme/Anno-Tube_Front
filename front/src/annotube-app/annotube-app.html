@@ -1,3 +1,9 @@
+<!--
+By: Mayl
+
+Entry point of the app, containt routing
+-->
+
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
@@ -68,10 +74,12 @@
             <annotube-search-result page-tk="[[queryParams.pageTk]]" search-value="[[queryParams.searchValue]]" name="search-result"></annotube-search-result>
             <annotube-result-version youtube-id="[[queryParams.youtubeId]]" name="result-version"></annotube-result-version>
             <annotube-profile profile-id="[[queryParams.profile]]" name="profile"></annotube-profile>
+            <annotube-myvideos name="myvideos"></annotube-myvideos>
             <annotube-video video-id="[[queryParams.videoId]]" is-youtube="[[queryParams.isYoutube]]" name="video"></annotube-video>
-            <annotube-myvideos profile-id=[ [userId]] name="myvideos"></annotube-myvideos>
-            <annotube-video-display name="video-display"></annotube-video-display>
 
+            <annotube-myvideos profile-id=[ [userId]] name="myvideos"></annotube-myvideos>
+            
+            <annotube-edit name="edit" video-id ="[[queryParams.videoId]]"></annotube-edit>
             <!-- there include other views -->
             <annotube-view404 name="view404"></annotube-view404>
             <annotube-forbidden name="forbidden"></annotube-forbidden>
@@ -119,7 +127,7 @@
         http.onreadystatechange = function () {
           if (http.readyState == 4) {
             if (http.status == 200) {
-              console.log(http.response);
+              //console.log(http.response);
               that.userId = JSON.parse(http.response)._id;
               that._routePageChanged(that.routeData.page);
               that._pageChanged(that.page);
@@ -144,15 +152,20 @@
         // }
       },
 
-      _pageChanged: function (page) {
+      _pageChanged: function (page, oldPage) {
         // Load page import on demand. Show 404 page if fails
         if (
           (page == "profile" && this.queryParams.profile === undefined) ||
-          (page == "video" && this.queryParams.videoId === undefined)
+          (page == "video" && this.queryParams.videoId === undefined) ||
+          (page == "edit" && this.queryParams.videoId === undefined)
         ) {
-          console.log("prout");
           this._showPageForbidden();
         }
+
+        if(oldPage == "video"){
+          console.log($('#video')[0].pause());
+        }
+
         if (!this.userId) {
           if (page == "options" ||
             page == "myvideos") {

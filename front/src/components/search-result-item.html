@@ -1,10 +1,17 @@
+<!--
+By: Thomas Clop
+-->
+
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
 
+<script src="../../bower_components/moment/min/moment.min.js"></script>
+<script src="../../bower_components/moment/min/locales.min.js"></script>
+
 <dom-module id="search-result-item">
     <template>
-        <style>
+        <style is="custom-style">
             .resultCell {
                 margin: 15px 15px 0px 15px;
             }
@@ -19,28 +26,38 @@
                 --iron-image-width: 100%;
                 --iron-image-height: auto;
                 float: left;
+                cursor: pointer;
                 border-radius: 3px;
             }
             
             .videoInformations {
-                width: 65%;
+                width: 63%;
                 margin: 0 1%;
                 float: left;
             }
             
             paper-badge {
                 cursor: pointer;
-                --paper-badge-width: 30px;
-                --paper-badge-height: 30px;
-                --paper-badge-margin-left: -10px;
-                --paper-badge-margin-bottom: -10px;
+                --paper-badge-width: 50px;
+                --paper-badge-height: 50px;
+                --paper-badge-margin-left: -30px;
+                --paper-badge-margin-bottom: -30px;
                 --paper-badge-background: darkred;
+                --paper-badge: {
+                    font-size: 20px;
+                }
+                ;
             }
             
             .videoTitle {
                 font: bold 16pt 'lucida sans', 'trebuchet MS', 'Tahoma';
-                color: #424242;
+                color: darkred;
+                cursor: pointer;
                 margin: 0px;
+            }
+            
+            .videoTitle:hover {
+                text-decoration: underline;
             }
             
             .videoAuthorDate {
@@ -52,6 +69,17 @@
                 font: normal 13pt 'lucida sans', 'trebuchet MS', 'Tahoma';
                 color: #424242;
                 margin: 5px 0px 0px 0px;
+            }
+            
+            paper-badge {
+                --paper-badge-width: 40px;
+                --paper-badge-height: 40px;
+                --paper-badge-margin-left: -20px;
+                --paper-badge-margin-bottom: -20px;
+                --paper-badge: {
+                    font-size: 16px;
+                }
+                ;
             }
             
             @media screen and (max-width: 1080px) {
@@ -148,11 +176,12 @@
             ready: function () {
                 this.nbVersions = 0;
                 this.getNumberOfVersion(this.youtubeItem.id.videoId);
-                var days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-                var months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-                var date = new Date(this.youtubeItem.snippet.publishedAt);
-                this.youtubeItem.snippet.publishedAt = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear() + " à " + date.getHours() + "h" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
-                this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", le " + this.youtubeItem.snippet.publishedAt;
+
+                moment.locale('fr');
+                var tmp = moment(this.youtubeItem.snippet.publishedAt);
+                this.youtubeItem.snippet.publishedAt = tmp.fromNow();
+
+                this.$.authorDate.innerHTML = this.youtubeItem.snippet.channelTitle + ", " + this.youtubeItem.snippet.publishedAt;
             },
             playVideo: function (event) {
                 if (!event.target.classList.contains("paper-badge")) {

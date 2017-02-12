@@ -1,3 +1,8 @@
+<!--
+Annotube Menu for connected user
+
+By: Thomas Clop
+-->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/social-icons.html">
@@ -62,7 +67,6 @@
         _userIdLoaded: function(newValue, oldValue){
             var that = this;
             var http = new XMLHttpRequest();
-            console.log("newValue", newValue, oldValue, this.userId);
             var url = "https://node.edouardg.fr/user/"+this.userId;
 
             http.open("GET", url, true);
@@ -89,7 +93,7 @@
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status == 200) {
-                        console.log(http.responseText);
+                        //console.log(http.responseText);
                         document.location = "/";
                     } else if (http.status == 400) {
                         console.log(JSON.parse(http.responseText).message);
