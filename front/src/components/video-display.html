@@ -120,7 +120,6 @@ By: Corentin Hardy
                         currenttimeformatted="{{currenttimeformatted}}"
                         duration="{{duration}}"
                         durationformatted="{{durationformatted}}"
-
                        >
                     <!--
                       video-id="SJubeTlS9CQ" id d'une video youtube directe
@@ -230,7 +229,13 @@ By: Corentin Hardy
                 currenttime: {
                     type: Number,
                     notify: true,
-                    reflectToAttribute: true 
+                    reflectToAttribute: true,
+                },
+                foreigntime: {
+                    type: Number,
+                    notify: true,
+                    reflectToAttribute: true,
+                    observer: "_setCurrenttime"
                 },
                 currenttimeformatted: {
                     type: String,
@@ -286,7 +291,7 @@ By: Corentin Hardy
             },
             listeners: {
                 'volume.change': 'volumeChanged',
-                'timeBar.change': 'setTime',
+                'timeBar.change': "setTime",
                 'video.google-youtube-ready' : 'videoReady',
                 'video.google-youtube-state-change' : 'videoStateChange'
             },
@@ -303,8 +308,9 @@ By: Corentin Hardy
                 console.log("videoId init: ", this.videoId);
 
             },
-            _videoIdChanged: function () {
-                console.log("videoId changed: ", this.videoId);
+            _videoIdChanged: function (old, news, target) {
+
+                console.log("videoId changed: ", old, news, target);
             },
             play: function () {
                 console.log("play / pause: ", this.state);
@@ -315,8 +321,22 @@ By: Corentin Hardy
                     this.$.video.pause();
                 } 
             },
-            setTime: function () {
-                console.log("clicked on ", this.currenttime, " / ", this.duration);
+            _setCurrenttime: function(newv, oldv){
+                //this.currenttime = newv;
+                if (newv >= 0){
+                    $(this.$.timeBar).val(newv);
+                    $(this.$.timeBar).change();
+                    this.setTime();
+                }
+                // if (!((oldv-newv)==-1 || (oldv-newv)==1)){
+                //     console.log("seek");
+                //     this.$.video.seekTo(this.currenttime);
+                // }
+            },
+            setTime: function (event) {
+                //this._setCurrenttime(0,this.currenttime);
+                console.log("bar change", event);
+                //console.log("clicked on ", this.currenttime, " / ", this.duration);
                 this.$.video.seekTo(this.currenttime);
             },
             mute: function () {

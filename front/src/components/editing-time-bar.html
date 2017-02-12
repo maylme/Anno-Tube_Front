@@ -39,8 +39,8 @@ By: Mayl
 
     </style>
 
-    <div id="time_bar">
-      <div id="player_bar" draggable="true" on-drag="coucou"></div>
+    <div id="time_bar" on-tap="movePlayerBar">
+      <div id="player_bar" draggable="true" on-drag="updateTime"></div>
     </div>
    
   </template>
@@ -61,6 +61,11 @@ By: Mayl
           reflectToAttribute: true,
           observer: "_currenttime_changed"
         },
+        foreigntime:{
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+        },
         duration:{
           type: Number,
           notify: true,
@@ -72,18 +77,23 @@ By: Mayl
         var left = (after*100)/(this.duration) + "%";
         this.$.player_bar.style.left = left;
       },
-      coucou: function(drag_evt){
-
+      updateTime: function(drag_evt){
         var left = Number($(this.$.player_bar).css("left").split("px")[0]);
 
         var offsetX = drag_evt.offsetX;
         left += offsetX;
         var size = this.$.time_bar.offsetWidth;
 
-        this.currenttime = (left/size)*this.duration;
-        
+        this.foreigntime = (left/size)*this.duration;
+        console.log("foreign time: ", this.foreigntime);
 
-      }
+      },
+      movePlayerBar: function (event){
+        console.log(event.detail.sourceEvent.offsetX);
+        var size = this.$.time_bar.offsetWidth;
+        this.foreigntime = (event.detail.sourceEvent.offsetX/size)*this.duration;
+      },
+
     });
 
 
