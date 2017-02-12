@@ -314,23 +314,23 @@ By: Corentin Hardy & Mayl
             ready: function () {
                 this._set_volume(this.volume);
                 this._isNextVideo = (this.nextVideoId != "");
-                console.log("isControlOut: ", this.isControlOut);
+                //console.log("isControlOut: ", this.isControlOut);
 
                 if(this.isControlOut){
                     this.$.videoControl.classList.remove("videoControl-in")
                     this.$.videoControl.classList.add("videoControl-out");
                 }
-                console.log("videoId init: ", this.videoId);
+               // console.log("videoId init: ", this.videoId);
 
                 this.closeControl();
 
             },
             _videoIdChanged: function (old, news, target) {
 
-                console.log("videoId changed: ", old, news, target);
+                //console.log("videoId changed: ", old, news, target);
             },
             play: function () {
-                console.log("play / pause: ", this.state);
+                //console.log("play / pause: ", this.state);
                 if (this.state != 1){
                     this.$.video.play();
                 }
@@ -352,7 +352,7 @@ By: Corentin Hardy & Mayl
             },
             setTime: function (event) {
                 //this._setCurrenttime(0,this.currenttime);
-                console.log("bar change", event);
+                //console.log("bar change", event);
                 //console.log("clicked on ", this.currenttime, " / ", this.duration);
                 this.$.video.seekTo(this.currenttime);
             },
@@ -369,7 +369,6 @@ By: Corentin Hardy & Mayl
                 this.isMuted = ! this.volumeChanged();
             },
             next: function () {
-                console.log("TODO"); // TODO
                 if(this._isNextVideo){
                     console.log("navigation to this en changeant le params idVideo + demanander quel est la nextVideo ?");
                 }
@@ -390,9 +389,9 @@ By: Corentin Hardy & Mayl
                 return wasMuted;
             },
             fullScreen: function () {
-                console.log("activate fullscreen", this.isFullScreened);
+                //console.log("activate fullscreen", this.isFullScreened);
                 this.isFullScreened = ! this.isFullScreened;
-                console.log("become => ", this.isFullScreened);
+                //console.log("become => ", this.isFullScreened);
 
                 if(this.isControlOut){
                     this.videoControlChange(! this.isFullScreened);
@@ -543,7 +542,7 @@ By: Corentin Hardy & Mayl
                 var height = this.$.canvas.height;
                 context.beginPath();
                 /*default*/
-                context.fillStyle="transparant";
+                context.fillStyle="rgba(0,0,0,0)";
                 context.strokeStyle= "#000";
                 var size = (20/100)*width;
                 var lineWidth = (3/100)*width;
@@ -573,13 +572,13 @@ By: Corentin Hardy & Mayl
                 var width = this.$.canvas.width;
                 var height = this.$.canvas.height;
                 context.beginPath();
-                context.fillStyle="transparant";
+                context.fillStyle="rgba(0,0,0,0)";
                 context.strokeStyle= "#000";
                 var size = (20/100)*width;
                 var lineWidth = (3/100)*width;
                 var x = (shape.position_x/100)*width;
                 var y = (shape.position_y/100)*width;
-                 if (shape.size){
+                if (shape.size){
                     size = (shape.size/100)*width;
                 }
                 if (shape.stroke_thikness){
@@ -599,17 +598,31 @@ By: Corentin Hardy & Mayl
 
             },
             _drawText: function(shape, text){
+                //console.log(shape);
 
                 var context = this.$.canvas.getContext('2d');
                 var width = this.$.canvas.width;
                 var height = this.$.canvas.height;
                 context.beginPath();
-                context.fillStyle="transparant";
+                context.fillStyle="#fff";
                 context.strokeStyle= "#000";
+                var size = 20;
+                if (shape.size){
+                    size = (shape.size/100)*width;
+                }
+                if (shape.stroke_thikness){
+                    lineWidth = (shape.stroke_thikness/100)*width;
+                }
+                if (shape.fill){
+                    context.fillStyle=shape.fill;
+                }
+                if(shape.stroke){
+                    context.strokeStyle=shape.stroke;
+                }
                 var x = (shape.position_x/100)*width;
                 var y = (shape.position_y/100)*width;
-                console.log(x,y);
-                context.font="20px Georgia";
+                //console.log(x,y);
+                context.font=size+"px Georgia";
 
                 context.fillText(text,x,y);
                 context.closePath();
