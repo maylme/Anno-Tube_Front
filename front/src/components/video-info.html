@@ -39,13 +39,26 @@ By: Corentin Hardy
             :host([disliked]) #likeDown {
                 fill: #b21d27;
             }
-            .avatar {
+            .img_container {
                 width: 40px;
                 height: 40px;
                 background: #ddd;
                 border-radius: 50%;
+                overflow:hidden;
                 display: inline-block;
                 vertical-align: middle;
+                position: relative;
+                --iron-image-placeholder: {
+                  background: #aaa;
+                };
+              }
+            .avatar {
+                position: absolute;
+                top:50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                max-width: 50px;
+                max-height: 50px;
             }
             a{
                 text-decoration: none;
@@ -67,11 +80,13 @@ By: Corentin Hardy
         <template is="dom-if" if="[[author]]">
             <span class="authorInfo">
                 <a href="/profile?profile=[[author._id]]">
-                    <template is="dom-if" if="[[author.img]]">
-                        <img class= "avatar" src="[[author.img]]">
+                    <template is="dom-if" if="[[author.avatar]]">
+                        <div class="img_container">
+                          <img class="avatar" src="[[author.avatar]]" preload fade sizing="cover"/>
+                        </div>                    
                     </template>
-                    <template is="dom-if" if="[[!author.img]]">
-                        <img class= "avatar" src="/assets/default/default_profile.svg">
+                    <template is="dom-if" if="[[!author.avatar]]">
+                        <img class= "avatar" src="{{profileImg}}">
                     </template>
                 </a>
                 <a class="author" href="/profile?profile=[[author._id]]">[[author.username]]</a>
@@ -99,10 +114,14 @@ By: Corentin Hardy
                     notify: true,
                     reflectToAttribute: true
                 },
+                profileImg: {
+                    type: String,
+                    value: "/assets/default/default_profile.svg",
+                },
                 author: {
                     type: Object, 
                     notify: true,
-                    reflectToAttribute: true
+                    reflectToAttribute: true,
                 },
                 videoName:{
                     type: String,
