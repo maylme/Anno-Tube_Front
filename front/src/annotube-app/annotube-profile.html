@@ -110,6 +110,12 @@ By: Mayl
                     if (res.youtube_chanel){
                       that.profileYoutube_chanel= res.youtube_chanel;
                     }
+                    if(res.avatar) {
+                      that.profileImg = res.avatar;
+                    }
+                    if(res.background) {
+                      that.profileBackground_img = res.background;
+                    }
                 }
             }
         };

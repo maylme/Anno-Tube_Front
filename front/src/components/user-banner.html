@@ -15,15 +15,27 @@ By: Mayl
         height: 220px;
       }
 
-      .profile img.profile_img {
+      .profile .image_container {
         border-radius: 50%;
         width:150px;
         height: 150px;
+        overflow:hidden;
         display: inline-block;
         transition: opacity 1000ms ease-in-out;
         background-color: #ddd;
-
+        position: relative;
       }
+
+
+      .profile img.profile_img{
+        position: absolute;
+        top:50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width:150px;
+        max-height: 150px;
+      }
+      
       .profile p{
         margin-left: 20px;
         color: white;
@@ -52,7 +64,9 @@ By: Mayl
     <iron-image class ="background_img" src="[[backgroundImg]]" fade preload  sizing="cover"></iron-image>
 
     <div class="profile">
-      <img class ="profile_img" src="[[profileImg]]" ></img>
+      <div class="image_container">
+        <img class ="profile_img" src="[[profileImg]]" ></img>
+      </div>
       <p>{{pseudo}}</p>
     </div>
 

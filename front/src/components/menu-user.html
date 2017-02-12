@@ -77,7 +77,7 @@ By: Thomas Clop
                     if (http.status == 200) {
                         var res = JSON.parse(http.response);
                         that.userName = res.username;
-                        //that.userImg = res.profileImg;
+                        that.userImg = res.avatar;
                     }
                 }
             };

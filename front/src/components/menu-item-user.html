@@ -35,16 +35,27 @@ By: Thomas Clop
         line-height: 50px !important;
       }
 
-       .avatar {
+      .my-account .img_container {
         width: 40px;
         height: 40px;
         background: #ddd;
         border-radius: 50%;
+        overflow:hidden;
         display: inline-block;
         vertical-align: middle;
+        position: relative;
         --iron-image-placeholder: {
           background: #aaa;
         };
+      }
+
+      .my-account .avatar{
+        position: absolute;
+        top:50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 40px;
+        max-height: 40px;
       }
 
        a:hover{
@@ -60,8 +71,9 @@ By: Thomas Clop
 <paper-item>
     <a class="my-account" name="myaccount" href="/profile?profile={{userId}}">
         <!--iron-icon class="avatar" icon="icons:account-circle" item-icon></iron-icon-->
-        <img class="avatar" src="[[userProfileImg]]" preload fade sizing="cover"/>
- 
+        <div class="img_container">
+          <img class="avatar" src="[[userProfileImg]]" preload fade sizing="cover"/>
+        </div>
         <span>[[userName]]</span>
     </a>
 </paper-item>

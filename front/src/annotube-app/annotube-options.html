@@ -10,7 +10,7 @@ By: Mayl
 <link rel="import" href="../components/user-banner.html">
 <link rel="import" href="./shared-styles.html">
 <link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
-
+<link rel="import" href="../../bower_components/file-upload/file-upload.html">
 
 <dom-module id="annotube-options">
   <template>
@@ -86,6 +86,15 @@ By: Mayl
             <label for = "youtube_chanel">Chaine Youtube</label>
             <input id="youtube_chanel" type="text" name="youtube_chanel" value ="[[user_youtube_chanel]]">
           </div>
+      		<div class = "field">
+      			<label for = "photo">photo de profil</label>
+    			  <input id="photo_input" type="file" name="photo"> 
+      		</div>
+      		<div class = "field">
+      			<label for = "background">banière</label>
+    			  <input id="background_input" type="file" name="photo"> 
+      		</div>
+
           <paper-button on-tap="saveChange">Sauvegarder</paper-button>
           <granite-alert class="notify" hidden level="success">[[notifyMessage]]</granite-alert>
           <br>
@@ -156,8 +165,8 @@ By: Mayl
                 if (http.status == 200) {
                     var res = JSON.parse(http.response);
                     that.user_pseudo = res.username;
-                    //that.user_profile_img = "http://www.teflin.org/assets/admin/pages/media/profile/photo3.jpg";
                     that.user_email = res.email;
+
                     if (res.website){
                       that.user_website= res.website;
                     }
@@ -166,6 +175,12 @@ By: Mayl
                     }
                     if (res.youtube_chanel){
                       that.user_youtube_chanel= res.youtube_chanel;
+                    }
+                    if (res.avatar) {
+                    	that.user_profile_img = res.avatar;
+                    }
+                    if (res.background) {
+                    	that.user_background_img = res.background;
                     }
 
                     that.$$("paper-spinner").setAttribute("hidden", "true");
@@ -235,7 +250,12 @@ By: Mayl
             data.youtube_chanel = this.$$("#youtube_chanel").value;
             console.log("youtube_chanel ok");
           }
-          this.updateUser(data);  
+          if (this.$.photo_input.files.length > 0){
+        		this.updatePhoto(this, "#photo_input", data, this._updatePhotoFinished);
+          	console.log("avatar ok");
+          }else {
+ 						this._saveChangeBackground(this, data);
+          }
         }else{
           this.notifyMessage = "Veuillez remplir les champs correctement";
           this.$$(".notify").removeAttribute('hidden');
@@ -243,8 +263,24 @@ By: Mayl
         }
         
       },
-      updateUser : function(data){
-        var that = this;
+      _updatePhotoFinished(that, data, response) {
+      	data.avatar = response;
+      	that._saveChangeBackground(that, data);
+      },
+      _saveChangeBackground : function (that, data) {
+      	if(that.$.background_input.files.length > 0){
+      		that.updatePhoto(that, "#background_input", data, that._updateBackgroundFinished)
+        	console.log("background ok");
+      	}
+      	else
+      	  that.updateUser(that, data);
+
+      },
+      _updateBackgroundFinished(that, data, response) {
+      	data.background = response;
+      	that.updateUser(that, data);
+      },
+      updateUser : function(that, data){
         var http = new XMLHttpRequest();
         var url = "https://node.edouardg.fr/user/"+this.userId;
         var params = JSON.stringify(data);
@@ -257,7 +293,7 @@ By: Mayl
         http.onreadystatechange = function () {
             if (http.readyState == 4) {
                 if (http.status == 200) {
-                  console.log(http.response);
+                  console.log("update User response: ", http.response);
                   //reload the page: 
                   that._userIdLoaded(); 
                   that.$$(".notify").removeAttribute("hidden");
@@ -277,6 +313,43 @@ By: Mayl
                 that.$$(".notify").setAttribute("level", 'danger')
             }
         };
+      },
+      updatePhoto : function(that, id, nextData, fct){
+				var http = new XMLHttpRequest();
+
+        http.open('POST', 'https://node.edouardg.fr/photo');
+
+        var form = new FormData();
+        for(var i=0; i < that.$$(id).files.length; i++)
+            form.append('photo', that.$$(id).files[i]); 
+
+        http.onreadystatechange = function () {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                  console.log("response photo changed valid: ", http.response);
+                  var res = JSON.parse(http.response);
+                  fct(that, nextData, res.url);
+                    
+                  //reload the page: 
+                  that.$$(".notify").removeAttribute("hidden");
+                  that.notifyMessage = "Image de profil modifiée";
+                  setTimeout(function(){
+                    that.$$(".notify").setAttribute("hidden", true);
+                  },3000);
+                } else if (http.status == 400) {
+                    console.log('nope photo changed');
+                    that.notifyMessage = JSON.parse(http.responseText).message;
+                    that.$$(".notify").removeAttribute('hidden');
+                    that.$$(".notify").setAttribute("level", 'danger');
+                }
+            } else if (http.status == 500) {
+                that.notifyMessage = "The server has encountered a situation it doesn't know how to handle.";
+                that.$$(".notify").removeAttribute('hidden');
+                that.$$(".notify").setAttribute("level", 'danger')
+            }
+        };
+        http.send(form);
+
       }
     });
 
