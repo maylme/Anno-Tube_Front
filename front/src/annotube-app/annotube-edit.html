@@ -57,6 +57,7 @@
                     duration= "{{duration}}" 
                     currenttime="{{currenttime}}"
                     foreigntime="{{foreigntime}}"
+                    annotations="{{annotations}}"
                     ></video-display>
                 </div>
                 <div class="link_part ">
@@ -65,7 +66,13 @@
                 </div>
             </div>
             <div class="editing_part">
-              <editing-time-bar currenttime="{{currenttime}}" foreigntime="{{foreigntime}}" play="{{play}}" duration="{{duration}}" class="editing_toolbar"></editing-time-bar>
+              <editing-time-bar 
+              currenttime="{{currenttime}}" 
+              foreigntime="{{foreigntime}}" 
+              play="{{play}}" 
+              duration="{{duration}}" 
+              class="editing_toolbar" 
+              annotations="{{annotations}}"></editing-time-bar>
             </div>
 
         </div>
@@ -89,6 +96,10 @@
                 duration:{
                   type: Number,
                   notify: true
+                },
+                annotations:{
+                  type: Array,
+                  notify:true,
                 }
             },
             ready: function () {

@@ -6,6 +6,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
 <link rel="import" href="../components/video-display.html">
 <link rel="import" href="../components/video-info.html">
 <link rel="import" href="../components/video-comment.html">
@@ -14,7 +16,7 @@
 
 <dom-module id="annotube-video">
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles" is="custom-style">
             :host {
                 display: block;
             }
@@ -47,11 +49,25 @@
             .link_part {
                 width: 40%;
                 margin: 0;
-                padding: 15px;
+                padding: 16px;
+                padding-top: 0;
             }
             
-            .link_part div {
-                border: solid grey 1px;
+            .link_part iron-icon {
+                --iron-icon-height: 32px;
+                --iron-icon-width: 32px;
+                cursor:pointer;
+
+                --iron-icon: {
+                    position: absolute;
+                    top: -22px;
+                    right: 0px;
+                    background: darkred;
+                    padding: 10px;
+                    border-radius: 50%;
+                    color: white;
+                    transform:rotate(45deg);
+                }
             }
         </style>
 
@@ -63,13 +79,18 @@
                 <h1>[[videoName]]</h1>
                 <div class="playing_aera">
                     <div class="video_part">
-                        <video-display class="video" video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
-                        <video-info author = "{author}}" video-id="{{videoId}}" annotations="{{annotations}}" is-youtube="{{isYoutube}}" youtube-id="{{youtubeId}}" video-name="{{videoName}}"  thumbnail="{{thumbnail}}"></video-info>
+                        <video-display class="video" currenttime={{currenttime}} video-id="{{youtubeId}}" annotations="{{annotations}}"></video-display>
+                        <video-info author = "{{author}}" video-id="{{videoId}}" annotations="{{annotations}}" is-youtube="{{isYoutube}}" youtube-id="{{youtubeId}}" video-name="{{videoName}}"  thumbnail="{{thumbnail}}"></video-info>
                     </div>
 
-                    <div class="link_part ">
-                        <div class="pd16 ">partie des liens wikipedia
-                        </div>
+                    <div class="link_part">
+                        <iframe src ="{{currentLink}}" width="100%" height="100%">
+                          <p>Your browser does not support iframes.</p>
+                        </iframe>
+                        <template is="dom-if" if="{{currentLink}} ">
+                            <iron-icon on-tap="goToLink" icon="icons:link"></iron-icon>
+                        </template>
+
                     </div>
                 </div>
 
@@ -99,10 +120,20 @@
                     reflectToAttribute: true,
                     value: false
                 },
+                currenttime:{
+                    type:String,
+                    notify:true,
+                    observer: "_timeChanged",
+                },
                 youtubeId: String,
                 videoName: String,
                 author: Object,
-                annotations: Object,
+                annotations: Array,
+                currentLink:{
+                    type:String,
+                    notify: true,
+                    value: "",
+                },
                 comments: Object,
                 likes: Number,
                 likeId: String,
@@ -134,7 +165,6 @@
                                 that.thumbnail = res.thunbmail;
                                 that.likes;
                                 that.likeId;
-
                             } else if (http.status == 400) {
                                 alert(JSON.parse(http.responseText).message);
                             } else if (http.status == 500) {
@@ -161,6 +191,22 @@
             youtubeResponse: function (result) {
                 this.videoName = result.detail.response.items[0].snippet.title;
                 this.thumbnail = result.detail.response.items[0].snippet.thumbnails.medium.url;
+            },
+            _timeChanged: function (){
+                if (this.annotations){
+                    for (var i = 0; i < this.annotations.length; i++){
+                        if (this.annotations[i].shape.type=="link"){
+                            if (this.annotations[i].time_start <= this.currenttime ||
+                                this.annotations[i].time_end >= this.currenttime){
+                                this.currentLink = this.annotations[i].text;
+                            }
+                        }
+                    }
+                }
+                
+            },
+            goToLink: function(){
+                window.open(this.currentLink,'_blank');
             }
         });
     </script>

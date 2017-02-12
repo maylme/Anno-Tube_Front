@@ -1,0 +1,29 @@
+<!--
+Annotation object
+By: Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+
+<dom-module id="annotation-element">
+  <template>
+    <style include="shared-styles">
+    </style>
+    <p>[[annotation.shape.type]] [[annotation.shape.position_x]] [[annotation.shape.position_y]]</p>
+  </template>
+   <script>
+    Polymer({
+      is: 'annotation-element',
+
+      properties: {
+      	annotation: {
+      		type: Object,
+      		notify: true,
+            reflectToAttribute: true
+      	}
+      }
+  	});
+   </script>
+
+</dom-module>

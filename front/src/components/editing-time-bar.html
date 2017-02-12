@@ -6,10 +6,8 @@ By: Mayl
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../components/user-banner.html">
+<link rel="import" href="../components/annotation.html">
 <link rel="import" href="./shared-styles.html">
-<link rel="import" href="../../bower_components/granite-alert/granite-alert.html">
 
 
 <dom-module id="editing-time-bar">
@@ -25,6 +23,7 @@ By: Mayl
         min-height: 40px;
         max-height: 40%;
         position: relative;
+        scroll-behavior: smooth;
       }
       #player_bar{
         position:absolute;
@@ -41,6 +40,9 @@ By: Mayl
 
     <div id="time_bar" on-tap="movePlayerBar">
       <div id="player_bar" draggable="true" on-drag="updateTime"></div>
+      <template is="dom-repeat" items="{{annotations}}">
+        <annotation-element annotation="{{item}}"></annotation-element>
+      </template>
     </div>
    
   </template>
@@ -70,8 +72,12 @@ By: Mayl
           type: Number,
           notify: true,
           reflectToAttribute: true
+        },
+        annotations:{
+          type: Array,
+          notify: true,
+          reflectToAttribute: true
         }
-       
       },
       _currenttime_changed: function (before, after){
         var left = (after*100)/(this.duration) + "%";
@@ -92,6 +98,10 @@ By: Mayl
         console.log(event.detail.sourceEvent.offsetX);
         var size = this.$.time_bar.offsetWidth;
         this.foreigntime = (event.detail.sourceEvent.offsetX/size)*this.duration;
+      },
+      sortAnnotations : function(annotation){
+        console.log(annotation);
+        return annotation;
       },
 
     });

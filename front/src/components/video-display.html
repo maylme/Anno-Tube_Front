@@ -1,6 +1,6 @@
 <!--
 Video display component 
-By: Corentin Hardy
+By: Corentin Hardy & Mayl
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
@@ -23,10 +23,12 @@ By: Corentin Hardy
             .youtube {
                 z-index: 100;
             }
-            .canvas{
+            #canvas{
                 z-index: 101;
                 position: absolute;
-                background-color: rgba(255,255,255, 0.8);
+                /*background-color: rgba(0,0,0, 0.8);*/
+                width: 100%;
+                height: 100%;
             }
             #videoComponent{
                 {{ isFullScreened?"
@@ -166,6 +168,11 @@ By: Corentin Hardy
              */
 
             properties: {
+                annotations:{
+                    type: Array,
+                    notify: true,
+                    reflectToAttribute: true
+                },
                 videoId: {
                     type: String,
                     notify: true,
@@ -230,6 +237,7 @@ By: Corentin Hardy
                     type: Number,
                     notify: true,
                     reflectToAttribute: true,
+                    observer: "_renderCanvas"
                 },
                 foreigntime: {
                     type: Number,
@@ -431,7 +439,136 @@ By: Corentin Hardy
                     this.$.videoControl.classList.add("videoControl-in")
                 }
 
+            },
+            _renderCanvas: function(oldval, newval){
+                var currentAnnotations = [];
+                var that=this;
+                if (this.annotations){
+                    for (var i = 0; i < this.annotations.length; i++){
+                        if( (this.annotations[i].time_start <= oldval ) && 
+                            (this.annotations[i].time_end >= oldval ) ){
+                            currentAnnotations.push(this.annotations[i]);
+                        }
+                    }
+
+                    var context = this.$.canvas.getContext('2d');
+                    var width = this.$.canvas.width;
+                    var height = this.$.canvas.height;
+
+                    context.clearRect(0, 0, width, height);
+                    for (var j = 0; j < currentAnnotations.length;j++){
+                        var shape = currentAnnotations[j].shape;
+                        /* NB : assume that all sizes and positions are in % of the actual canvas width for responsive*/
+                        switch(shape.type){
+                            case "square":
+                                that._drawRect( shape);
+                                break;
+                            case "round":
+                                that._drawRound( shape);
+                                break;
+                            case "text":
+                                that._drawText( shape, currentAnnotations[j].text);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // if(shape==2){
+                        //     contexte.beginPath();
+                        //     contexte.arc(x,y,30,0,Math.PI*2,true);
+
+                        //     contexte.closePath();
+                        //     contexte.stroke();
+                        // }else if (shape==3){
+                        //     contexte.beginPath();
+                        //     contexte.rect(x,y,30,30);
+                        //     contexte.stroke();
+                        //     contexte.closePath();
+                        // }else if(shape==1){
+                        //     contexte.font="20px Georgia";
+                        //     contexte.fillText(document.getElementById("text").value,x,y);
+                        // }
+                    }
+                }
+            },
+            _drawRect: function(shape){
+                var context = this.$.canvas.getContext('2d');
+                var width = this.$.canvas.width;
+                var height = this.$.canvas.height;
+                context.beginPath();
+                /*default*/
+                context.fillStyle="transparant";
+                context.strokeStyle= "#000";
+                var size = (20/100)*width;
+                var lineWidth = (3/100)*width;
+                var x = (shape.position_x/100)*width;
+                var y = (shape.position_y/100)*width;
+
+                if (shape.size){
+                    size = (shape.size/100)*width;
+                }
+                if (shape.stroke_thikness){
+                    lineWidth = (shape.stroke_thikness/100)*width;
+                }
+                if (shape.fill){
+                    context.fillStyle=shape.fill;
+                }
+                context.fillRect(x,y,size,size);
+                if(shape.stroke){
+                    context.strokeStyle=shape.stroke;
+                }
+                context.lineWidth = lineWidth;
+                
+                context.strokeRect(x,y,size,size);
+                context.closePath();
+            },
+            _drawRound: function(shape){
+                var context = this.$.canvas.getContext('2d');
+                var width = this.$.canvas.width;
+                var height = this.$.canvas.height;
+                context.beginPath();
+                context.fillStyle="transparant";
+                context.strokeStyle= "#000";
+                var size = (20/100)*width;
+                var lineWidth = (3/100)*width;
+                var x = (shape.position_x/100)*width;
+                var y = (shape.position_y/100)*width;
+                 if (shape.size){
+                    size = (shape.size/100)*width;
+                }
+                if (shape.stroke_thikness){
+                    lineWidth = (shape.stroke_thikness/100)*width;
+                }
+                if (shape.fill){
+                    context.fillStyle=shape.fill;
+                }
+                context.arc(x,y,size,0,Math.PI*2,true);
+                context.fill();
+                if(shape.stroke){
+                    context.strokeStyle=shape.stroke;
+                }
+                context.arc(x,y,size,0,Math.PI*2,true);
+                context.stroke();
+                context.closePath();
+
+            },
+            _drawText: function(shape, text){
+
+                var context = this.$.canvas.getContext('2d');
+                var width = this.$.canvas.width;
+                var height = this.$.canvas.height;
+                context.beginPath();
+                context.fillStyle="transparant";
+                context.strokeStyle= "#000";
+                var x = (shape.position_x/100)*width;
+                var y = (shape.position_y/100)*width;
+                console.log(x,y);
+                context.font="20px Georgia";
+
+                context.fillText(text,x,y);
+                context.closePath();
             }
+
         });
     </script>
 </dom-module>
