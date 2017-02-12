@@ -168,7 +168,8 @@ Entry point of the app, containt routing
 
         if (!this.userId) {
           if (page == "options" ||
-            page == "myvideos") {
+            page == "myvideos" ||
+            page == "edit") {
             this._showPageForbidden();
           } else {
             var resolvedPageUrl = this.resolveUrl("annotube-" + page + '.html');

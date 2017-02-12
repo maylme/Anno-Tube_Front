@@ -9,6 +9,8 @@ By: Mayl
 <link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
 <script src="../../bower_components/moment/min/moment.min.js"></script>
 <script src="../../bower_components/moment/min/locales.min.js"></script>
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
 
 <dom-module id="video-thumbnail">
   <template>
@@ -17,9 +19,13 @@ By: Mayl
         display: inline-block;
         width: 210px;
         height: 220px;
-        overflow: hidden;
         margin: 10px;
         position: relative;
+      }
+      .video_thumbnail{
+        width: 210px;
+        height: 220px;
+        overflow: hidden;
       }
       
       .thumbnail {
@@ -95,10 +101,27 @@ By: Mayl
       
       .privacy {
         position: absolute;
-        top: 0;
-        right: 0;
+        top: -15px;
+        right: -15px;
         --iron-icon-fill-color: white;
-        --iron-icon-stroke-color: black;
+        --iron-icon : {
+          background : darkred;
+          padding: 10px;
+          border-radius:50%;
+        };
+      }
+      #edit{
+        position: absolute;
+        top: 100px;
+        right: 0;
+        --iron-icon-fill-color: darkred;
+        cursor:pointer;
+        --iron-icon : {
+          background : white;
+          padding: 10px;
+          border-radius:50%;
+        };
+
       }
     </style>
 
@@ -119,6 +142,9 @@ By: Mayl
     <template is="dom-if" if="[[videoObj.privacy]]">
       <iron-icon class="privacy" icon="icons:https"></iron-icon>
     </template>
+
+    <iron-icon id="edit" on-tap="edit" icon="icons:create"></iron-icon>
+    <paper-tooltip for="edit" offset="0">Modifier cette vidéo</paper-tooltip>
 
 
   </template>
@@ -168,6 +194,9 @@ By: Mayl
       },
       openProfile: function () {
         document.location = "/profile?profile=" + this.videoObj.author;
+      },
+      edit: function(){
+        document.location = "/edit?videoId=" + this.videoObj._id;
       }
     });
   </script>

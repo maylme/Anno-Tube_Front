@@ -6,7 +6,7 @@ By: Mayl
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../components/annotation.html">
+<link rel="import" href="../components/annotation-element.html">
 <link rel="import" href="./shared-styles.html">
 
 
@@ -24,16 +24,18 @@ By: Mayl
         max-height: 40%;
         position: relative;
         scroll-behavior: smooth;
+        z-index: 0;
       }
       #player_bar{
         position:absolute;
         top:50%;
         transform: translate(0, -50%);
         left: 0;
-        width: 5px;
+        width: 8px;
         height: 110%;
         background-color: #3367d6;
         cursor: pointer;
+        z-index: 2;
       }
 
     </style>
@@ -41,7 +43,7 @@ By: Mayl
     <div id="time_bar" on-tap="movePlayerBar">
       <div id="player_bar" draggable="true" on-drag="updateTime"></div>
       <template is="dom-repeat" items="{{annotations}}">
-        <annotation-element annotation="{{item}}"></annotation-element>
+        <annotation-element duration= "{{duration}}" annotation="{{item}}"></annotation-element>
       </template>
     </div>
    
@@ -71,13 +73,17 @@ By: Mayl
         duration:{
           type: Number,
           notify: true,
-          reflectToAttribute: true
+          reflectToAttribute: true,
+          observer: "_test",
         },
         annotations:{
           type: Array,
           notify: true,
-          reflectToAttribute: true
+          reflectToAttribute: true,
         }
+      },
+      _test: function(){
+        console.log("duration", this.duration);
       },
       _currenttime_changed: function (before, after){
         var left = (after*100)/(this.duration) + "%";

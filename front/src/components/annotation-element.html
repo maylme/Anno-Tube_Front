@@ -1,0 +1,180 @@
+<!--
+Annotation object
+By: Mayl
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<script src="../../bower_components/jquery-ui/jquery-ui.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="annotation-element">
+
+  <template>
+    <style include="shared-styles">
+	    #container{
+	    	width:100%;
+	    	margin: 0;
+	    	padding: 0;
+	    }
+	    #annotation_elem{
+	    	background:#eeefff;
+	    	color: #222;
+	    	border: 1px grey solid;
+	    	position:relative;
+	    	overflow:hidden;
+	    	min-height: 100%
+	    }
+	    #annotation_elem p{
+	    	padding:5px;
+	    }
+	    .myhandle{
+	    	width:4px;
+	    	height: 100%;
+	    	background: grey;
+	    	position: absolute;
+	    	bottom: 0;
+	    	right: 0;
+	    	cursor: e-resize;
+	    }
+
+    </style>
+
+    <div id="container">
+    	<div id ="annotation_elem" class="ui-resizable">
+    		<p>[[annotation.shape.type]]</p>
+
+    		<div class="myhandle ui-resizable-handle ui-resizable-e"></div>
+    	</div>
+    </div>
+  </template>
+   <script>
+    Polymer({
+      is: 'annotation-element',
+
+      properties: {
+      	annotation: {
+      		type: Object,
+      		notify: true,
+            reflectToAttribute: true,
+            observer: "_gotAnnotation"
+
+      	},
+      	duration: {
+      		type: Number,
+      		notify: true,
+      		reflectToAttribute: true,
+      		observer: "_gotDuration"
+      	},
+      	gotDuration: {
+      		type: Boolean,
+      		value: false,
+      		notify: true
+      	}
+      },
+      _gotDuration: function (){
+      	console.log("got duration :", this.duration);
+      	if (this.duration && this.duration !=1){
+      		this.gotDuration = true;
+      		if (this.annotation){
+      			this.my_ready();
+      		}
+      	}
+      },
+		_gotAnnotation: function (){
+			console.log("got annotation :", this.annotation);
+
+	      	if (this.gotDuration && this.annotation){
+	      		this.my_ready();
+	      	}
+      },
+      my_ready: function(){
+      	if (this.gotDuration && this.annotation){
+      		this.$.annotation_elem.style.width = ((this.annotation.time_end-this.annotation.time_start)/this.duration)*100 + "%";
+      		this.$.annotation_elem.style.left = (((this.annotation.time_start)/this.duration))*100 + "%";
+
+      		var that = this;
+      		var elem = that.$.annotation_elem;
+      		var x_grid = $(that.$.container).width()/that.duration;
+      		console.log("HEY",$(that.$.container).width(), that.duration, x_grid);
+
+      		$(elem).resizable({
+     			containment:"parent",
+      			resize: function( event, ui ) {
+      				that.resizing(event , ui);
+      			},
+      			grid: [x_grid, 20],
+      			minWidth:0,
+      			stop: function(event,ui){
+      				that.stop(event,ui);
+      			},
+
+      		});
+      		$(elem).draggable({
+     			containment:"parent",
+      			drag: function( event, ui ) {
+      				that.dragging(event , ui);
+      			},
+      			//grid: [x_grid, 20],
+      			stop: function(event,ui){
+      				that.stopDragging(event,ui);
+      			},
+
+      		});
+
+      		
+      	}
+      },
+      resizing: function(event, ui){
+      	console.log($(this.$.container).width());
+      	this.annotation.time_end = ((ui.size.width+ui.position.left)/$(this.$.container).width())*this.duration;
+      	console.log("yolooo", this.annotation.time_end);
+      	//
+      },
+      stop: function( event, ui ){
+      	console.log("stop",ui.size.width);
+      	var time_end = ((ui.size.width+ui.position.left)/$(this.$.container).width())*this.duration;
+      	time_end = Math.round(time_end);
+      	
+        var params = JSON.stringify({
+        	"time_end" : time_end
+        });
+        this._send_modification(params);
+        
+      },
+      dragging: function (event, ui){
+      	console.log(ui.position.left);
+      	    this.annotation.time_start = ((ui.position.left)/$(this.$.container).width())*this.duration;
+      	    var lenght_annotation = $(ui.helper[0]).width();
+      	    this.annotation.time_end = ((ui.position.left+ lenght_annotation)/$(this.$.container).width())*this.duration;
+      },
+      stopDragging :function (event, ui){
+      	 var start = ((ui.position.left)/$(this.$.container).width())*this.duration;
+      	    var lenght_annotation = $(ui.helper[0]).width();
+      	 var end = ((ui.position.left+ lenght_annotation)/$(this.$.container).width())*this.duration;
+      	 start = Math.round(start);
+      	 end = Math.round(end);
+      	 var params = JSON.stringify({
+        	"time_end" : end,
+        	"time_start": start
+         });
+         this._send_modification(params);
+      },
+      _send_modification: function(params){
+		var url = "https://node.edouardg.fr/annotation/"+this.annotation._id;
+		var http = new XMLHttpRequest();
+        http.open("PUT", url, true);
+        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
+        http.onreadystatechange = function () {
+              if (http.readyState == 3 && http.status == 200) {
+                  console.log(http.responseText);
+              }else if (http.status == 400){
+                  console.log(http.responseText);
+              }
+          };
+          http.send(params);
+      }
+  	});
+   </script>
+
+</dom-module>
