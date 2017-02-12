@@ -15,6 +15,7 @@ By: Nicolas Forget
       .comment {
         width: 100%;
         border: 1px black;
+        margin: 0.5em;
       }
 
       .profilPics {
@@ -31,12 +32,11 @@ By: Nicolas Forget
 
     </style>
 
-    <iron-ajax></ajax>
 
     <div class="comment">
-      <img class="profilPics" src="https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-9/15895260_1234137733347195_8350877940320327598_n.jpg?oh=618655f535061f278e1f4fc3d265b299&oe=591040D8"></img>
-    <h3 class="userName">Nicolas Forget</h3>
-    <p class="commentText">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sit amet erat at odio malesuada lacinia sit amet sagittis sem. Mauris rhoncus congue placerat. Suspendisse eget ligula quis lectus euismod accumsan. Etiam nisi neque, efficitur sit amet nisi mattis, sodales posuere eros. Proin aliquet augue diam. Vivamus fringilla elementum est nec aliquam. Praesent nunc odio, maximus pretium cursus ac, finibus id dui. Fusce ornare neque sit amet imperdiet gravida. Fusce interdum sit amet nibh sed convallis. Vestibulum sit amet leo ut lectus varius feugiat sed sed sapien. Nulla vitae turpis blandit, lacinia sapien eget, rhoncus arcu. Phasellus sit amet ante eu velit luctus luctus in non est. Donec eu mi egestas, ultricies ipsum vitae, sodales libero. Suspendisse vehicula sapien urna, id pretium neque blandit at. Maecenas porta tincidunt tortor et maximus.</p>
+      <img class="profilPics" src="{{comment.author.avatar}}"></img>
+      <h3 class="userName">{{comment.author.username}}</h3>
+      <p class="commentText">{{comment.text}}</p>
     </div>
 
   </template>
@@ -45,40 +45,12 @@ By: Nicolas Forget
   Polymer({
     is: 'video-comment',
     properties: {
-      comId: {
-        type: String,
+      comment: {
+        type: Object,
         notify: true,
         reflectToAttribute: true
       }
     },
-
-    getComment: function(){
-      //TODO get comment by Id
-        var url = "https://node.edouardg.fr/login";
-        var token;
-        var params = JSON.stringify({
-            password: "password",
-            username: "pseudo"
-        });
-
-        http.open("POST", url, true);
-        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-        http.withCredentials = true;
-        http.send(params);
-
-        http.onreadystatechange = function () {
-            if (http.readyState == 4) {
-                if (http.status == 200) {
-                    alert(http.responseText);
-                } else if (http.status == 400) {
-                    alert(JSON.parse(http.responseText).message);
-                }
-            } else if (http.status == 500) {
-                console.log("The server has encountered a situation it doesn't know how to handle.");
-            }
-        }
-      
-    }
 
   });
 </script>

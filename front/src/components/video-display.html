@@ -459,11 +459,9 @@ By: Corentin Hardy & Mayl
                     this._isControlClose += 1;
                     this.$.videoControl.classList.remove("videoControl-close");
                 }
-                console.log("open videoControl-open: ", this._isControlClose);
                 var _isControlCloseCurrent = this._isControlClose;
                 var that = this;
                 setTimeout(function() {
-                    console.log("close in open? ", _isControlCloseCurrent, that._isControlClose);
                     if(_isControlCloseCurrent == that._isControlClose){
                         that._isControlClose += 1;
                         that.$.videoControl.classList.add("videoControl-close");
@@ -473,17 +471,14 @@ By: Corentin Hardy & Mayl
             keepOpenControl: function(e) {
                 this.openControl();
                 this._isControlClose += 2;
-                console.log("keep open")
             },
             closeControl: function(e) {
                 if(this.isControlOut)
                     return;
                 if((this._isControlClose%2) == 0){
-                    console.log("close videoControl-close: ", this._isControlClose);
                     var _isControlCloseCurrent = this._isControlClose;
                     var that = this;
                     setTimeout(function() {
-                        console.log("close? ", _isControlCloseCurrent, that._isControlClose);
                         if(_isControlCloseCurrent == that._isControlClose){
                             that._isControlClose += 1;
                             that.$.videoControl.classList.add("videoControl-close");

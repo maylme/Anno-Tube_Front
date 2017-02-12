@@ -1,6 +1,6 @@
 <!--
     Page of the playing video (youtube or annoted one)
-    By: Corentin Hardy & Nicolas Forget
+    By: Corentin Hardy & Nicolas Forget & Maylanie Mesnier
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
@@ -69,6 +69,35 @@
                     transform:rotate(45deg);
                 }
             }
+
+            .hided {
+                display: none;
+            }
+
+            #addCommentConainer {
+                position: relative;
+                border: 1px solid darkgrey;
+                width: 60%;
+                min-width: 300px;
+                height: 3em;
+            }
+
+            #addCommentConainer textarea {
+                border: none;
+                width: 92%;
+                height: 3em;
+                resize: none;
+
+            }
+
+            #addCommentConainer iron-icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 8%;
+                height: 3em;
+                margin: auto;
+            }
         </style>
 
 
@@ -94,10 +123,13 @@
                     </div>
                 </div>
 
+                <div id="addCommentConainer" class="hided">
+                    <textarea id="comment_input"></textarea>
+                    <iron-icon icon="icons:add" on-tap="validAddComment"></iron-icon>
+                </div>
 
-                <template is="dom-repeat " items="{{comments}} ">
-                    <video-comment video-id="{{videoId}} " com-id="{{item._id}} " com-name="{{item.author.username}}
-                            " com-pic=" " com-text="{{item.text}} "></video-comment>
+                <template is="dom-repeat" items="{{comments}}">
+                    <video-comment comment ="{{item}}"></video-comment>
                 </template>
             </div>
 
@@ -109,6 +141,12 @@
             is: 'annotube-video',
 
             properties: {
+                profileId:{
+                  type: String,
+                  value: "",
+                  notify: true,
+                  reflectToAttribute: true
+                },
                 videoId: {
                     type: String,
                     notify: true,
@@ -140,8 +178,10 @@
                 thumbnail: String,
             },
             ready: function () {
+                console.log("at ready, ", this.isYoutube);
                 this.isYoutube = (this.isYoutube=="true");
                 if (!this.isYoutube) {
+                    
                     var that = this;
                     var url = "https://node.edouardg.fr/video/" + this.videoId;
 
@@ -162,9 +202,12 @@
                                 that.author = res.author;
                                 that.annotations = res.annotations;
                                 that.comments = res.comments;
+                                console.log("comments length: ", res.comments.length);
+                                that.notifyPath("comments");
                                 that.thumbnail = res.thunbmail;
                                 that.likes;
                                 that.likeId;
+
                             } else if (http.status == 400) {
                                 alert(JSON.parse(http.responseText).message);
                             } else if (http.status == 500) {
@@ -187,6 +230,9 @@
                     this.likes;
                     this.likeId;
                 }
+                if((this.profileId != "") && (this.isYoutube == false)){
+                    this.$.addCommentConainer.classList.remove("hided");
+                }
             },
             youtubeResponse: function (result) {
                 this.videoName = result.detail.response.items[0].snippet.title;
@@ -204,6 +250,45 @@
                     }
                 }
                 
+            },
+            validAddComment: function () {
+                console.log("validAddComment: ", this.$.comment_input.value);
+                
+                var that = this;
+                var url = "https://node.edouardg.fr/comment/";
+                var http = new XMLHttpRequest();
+                http.open("POST", url, true);
+                http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                http.withCredentials = true;
+                
+                var data = {};
+                data.video = this.videoId;
+                data.text = this.$.comment_input.value; 
+                data.author = this.profileId; 
+                var params = JSON.stringify(data);
+                console.log("send: ", params);
+                http.send(params);
+
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200 || http.status == 201) {
+                            console.log("comment added -> reload comments");
+                            var res = JSON.parse(http.response);
+                            var data = {};
+                            data.text = res.text;
+                            data.author = {};
+                            data.author.username = "vous";
+                            data.author.avatar = "";
+                            that.$.comment_input.value = "";
+                            that.push("comments", data);
+                        } else if (http.status == 400) {
+                            console.log("error: ", http.status, "\n", JSON.parse(http.responseText).message);
+                        } else if (http.status == 500) {
+                            console.log("The server has encountered a situation it doesn 't know how to handle.");
+                        }
+                    }
+                }
+
             },
             goToLink: function(){
                 window.open(this.currentLink,'_blank');

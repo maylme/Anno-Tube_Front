@@ -75,7 +75,7 @@ Entry point of the app, containt routing
             <annotube-result-version youtube-id="[[queryParams.youtubeId]]" name="result-version"></annotube-result-version>
             <annotube-profile profile-id="[[queryParams.profile]]" name="profile"></annotube-profile>
             <annotube-myvideos name="myvideos"></annotube-myvideos>
-            <annotube-video video-id="[[queryParams.videoId]]" is-youtube="[[queryParams.isYoutube]]" name="video"></annotube-video>
+            <annotube-video profile-id="[[userId]]" video-id="[[queryParams.videoId]]" is-youtube="[[queryParams.isYoutube]]" name="video"></annotube-video>
 
             <annotube-myvideos profile-id=[ [userId]] name="myvideos"></annotube-myvideos>
             
