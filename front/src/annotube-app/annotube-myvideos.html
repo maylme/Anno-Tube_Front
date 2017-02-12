@@ -39,7 +39,7 @@ By: Mayl
 
     <div class="video_list pd16">
       <template is="dom-repeat" items="{{videos}}" as="video">
-        <video-thumbnail video-obj = "{{video}}"></video-thumbnail>
+        <video-thumbnail show-privacy="{{showPrivacy}}" video-obj = "{{video}}"></video-thumbnail>
       </template>
 
     </div>
@@ -53,6 +53,10 @@ By: Mayl
       is: 'annotube-myvideos',
 
       properties: {
+        showPrivacy: {
+          type: Boolean,
+          value: true,
+        },
         profilePseudo: {
           type: String,
         },

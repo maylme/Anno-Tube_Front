@@ -7,6 +7,7 @@ By: Mayl
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
 <script src="../../bower_components/moment/min/moment.min.js"></script>
 <script src="../../bower_components/moment/min/locales.min.js"></script>
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
@@ -99,16 +100,42 @@ By: Mayl
         margin-left: 0;
       }
       
-      .privacy {
+      .chosen {
         position: absolute;
         top: -15px;
         right: -15px;
+        z-index: 1;
+        cursor: pointer;
         --iron-icon-fill-color: white;
         --iron-icon : {
           background : darkred;
           padding: 10px;
           border-radius:50%;
         };
+      }
+      .choice {
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        z-index: 0;
+        opacity: 0;
+        transition: right ease 1s;
+        --iron-icon-fill-color: darkred;
+        --iron-icon-width: 20px;
+        --iron-icon-height:20px;
+        --iron-icon : {
+          background : white;
+          padding: 10px;
+          border-radius:50%;
+          border: 1px darkred solid;
+        };
+      }
+      .choice[showing]{
+        cursor: pointer;
+        position: absolute;
+        opacity: 1;
+        top: -15px;
+        right: -60px;
       }
       #edit{
         position: absolute;
@@ -139,9 +166,19 @@ By: Mayl
         </p>
       </div>
     </div>
-    <template is="dom-if" if="[[videoObj.privacy]]">
-      <iron-icon class="privacy" icon="icons:https"></iron-icon>
+    <template is="dom-if" if="[[showPrivacy]]">
+      <template is="dom-if" if="[[videoObj.privacy]]">
+        <iron-icon class="chosen" icon="icons:https" on-tap="displayChoices"></iron-icon>
+
+        <iron-icon class="choice" icon="social:public" on-tap="setPublic"></iron-icon>
+      </template>
+      <template is="dom-if" if="[[!videoObj.privacy]]">
+        <iron-icon class="chosen" icon="social:public" on-tap="displayChoices"></iron-icon>
+
+        <iron-icon class="choice" icon="icons:https" on-tap="setPrivate"></iron-icon>
+      </template>
     </template>
+
 
     <iron-icon id="edit" on-tap="edit" icon="icons:create"></iron-icon>
     <paper-tooltip for="edit" offset="0">Modifier cette vidéo</paper-tooltip>
@@ -153,6 +190,11 @@ By: Mayl
     Polymer({
       is: 'video-thumbnail',
       properties: {
+        showPrivacy: {
+          type: Boolean,
+          notify:true,
+          reflectToAttribute: true,
+        },
         videoObj: {
           type: Object,
           notify: true,
@@ -197,7 +239,61 @@ By: Mayl
       },
       edit: function(){
         document.location = "/edit?videoId=" + this.videoObj._id;
-      }
+      },
+      displayChoices: function(){
+        if (!this.$$(".choice").hasAttribute('showinng')){
+          this.$$(".choice").setAttribute("showing", "true");
+        }else{
+          this.$$(".choice").removeAttribute('showing');
+        }
+      },
+      setPublic: function(){
+        var that = this;
+        var url = "https://node.edouardg.fr/video/"+this.videoObj._id;
+        var http = new XMLHttpRequest();
+        http.open("PUT", url, true);
+        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
+        var params =  JSON.stringify({
+          "privacy": false
+        });
+        http.onreadystatechange = function () {
+              if (http.readyState == 4 && http.status == 200) {
+                console.log(http.responseText);
+                that.videoObj.privacy = false;
+                that.$$(".choice").removeAttribute('showing');
+                that.notifyPath("videoObj.privacy");
+              }else if (http.status == 400){
+                  console.log(http.responseText);
+              }
+          };
+        http.send(params);
+      },
+      setPrivate: function(){
+        var that = this;
+        var url = "https://node.edouardg.fr/video/"+this.videoObj._id;
+        var http = new XMLHttpRequest();
+        http.open("PUT", url, true);
+        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
+        var params =  JSON.stringify({
+          "privacy": true
+        });
+        http.onreadystatechange = function () {
+              if (http.readyState == 4 && http.status == 200) {
+                console.log(http.responseText);
+                that.videoObj.privacy = true;
+                that.notifyPath("videoObj.privacy");
+                that.$$(".choice").removeAttribute('showing');
+                that.notifyPath("videoObj.privacy");
+
+
+              }else if (http.status == 400){
+                  console.log(http.responseText);
+              }
+          };
+        http.send(params);
+      },
     });
   </script>
 </dom-module>
