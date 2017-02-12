@@ -5,7 +5,7 @@ By: Mayl
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <script src="../../bower_components/jquery-ui/jquery-ui.min.js"></script>
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
 
 <dom-module id="annotation-element">
 
@@ -15,6 +15,7 @@ By: Mayl
 	    	width:100%;
 	    	margin: 0;
 	    	padding: 0;
+	    	border-bottom:dashed grey 1px;
 	    }
 	    #annotation_elem{
 	    	background:#eeefff;
@@ -40,11 +41,11 @@ By: Mayl
     </style>
 
     <div id="container">
-    	<div id ="annotation_elem" class="ui-resizable">
-    		<p>[[annotation.shape.type]]</p>
-
-    		<div class="myhandle ui-resizable-handle ui-resizable-e"></div>
-    	</div>
+	    <div id ="annotation_elem" class="ui-resizable">
+  			<paper-ripple></paper-ripple>
+	    	<p>[[annotation.shape.type]]</p>
+	    	<div class="myhandle ui-resizable-handle ui-resizable-e"></div>
+	    </div>
     </div>
   </template>
    <script>
@@ -69,10 +70,14 @@ By: Mayl
       		type: Boolean,
       		value: false,
       		notify: true
+      	},
+      	isSelected: {
+      		type: Boolean,
+      		value: false,
+      		notify: true,
       	}
       },
       _gotDuration: function (){
-      	console.log("got duration :", this.duration);
       	if (this.duration && this.duration !=1){
       		this.gotDuration = true;
       		if (this.annotation){
@@ -81,7 +86,6 @@ By: Mayl
       	}
       },
 		_gotAnnotation: function (){
-			console.log("got annotation :", this.annotation);
 
 	      	if (this.gotDuration && this.annotation){
 	      		this.my_ready();
@@ -95,7 +99,6 @@ By: Mayl
       		var that = this;
       		var elem = that.$.annotation_elem;
       		var x_grid = $(that.$.container).width()/that.duration;
-      		console.log("HEY",$(that.$.container).width(), that.duration, x_grid);
 
       		$(elem).resizable({
      			containment:"parent",
@@ -125,13 +128,10 @@ By: Mayl
       	}
       },
       resizing: function(event, ui){
-      	console.log($(this.$.container).width());
       	this.annotation.time_end = ((ui.size.width+ui.position.left)/$(this.$.container).width())*this.duration;
-      	console.log("yolooo", this.annotation.time_end);
       	//
       },
       stop: function( event, ui ){
-      	console.log("stop",ui.size.width);
       	var time_end = ((ui.size.width+ui.position.left)/$(this.$.container).width())*this.duration;
       	time_end = Math.round(time_end);
       	
@@ -142,7 +142,6 @@ By: Mayl
         
       },
       dragging: function (event, ui){
-      	console.log(ui.position.left);
       	    this.annotation.time_start = ((ui.position.left)/$(this.$.container).width())*this.duration;
       	    var lenght_annotation = $(ui.helper[0]).width();
       	    this.annotation.time_end = ((ui.position.left+ lenght_annotation)/$(this.$.container).width())*this.duration;
@@ -166,8 +165,8 @@ By: Mayl
         http.setRequestHeader("Content-type", "application/json; charset=utf-8");
         http.withCredentials = true;
         http.onreadystatechange = function () {
-              if (http.readyState == 3 && http.status == 200) {
-                  console.log(http.responseText);
+              if (http.readyState == 4 && http.status == 200) {
+                  //console.log(http.responseText);
               }else if (http.status == 400){
                   console.log(http.responseText);
               }

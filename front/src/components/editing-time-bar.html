@@ -6,6 +6,13 @@ By: Mayl
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+
 <link rel="import" href="../components/annotation-element.html">
 <link rel="import" href="./shared-styles.html">
 
@@ -20,11 +27,18 @@ By: Mayl
         display: block;
         width: 100%;
         background: darkgrey;
-        min-height: 40px;
-        max-height: 40%;
+        position: relative;
+        z-index: 0;
+
+      }
+      #scroll{
+        max-height: 200px;
+        width: 100%;
+        overflow: scroll;
         position: relative;
         scroll-behavior: smooth;
-        z-index: 0;
+        overflow-x: hidden;
+
       }
       #player_bar{
         position:absolute;
@@ -37,14 +51,66 @@ By: Mayl
         cursor: pointer;
         z-index: 2;
       }
+      #tool_bar{
+        margin-bottom: 20px; 
+      }
+      .colors{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .colors paper-input{
+          margin:10px;
+      }
 
     </style>
+    <div id="tool_bar">
+      <paper-icon-button on-tap="addRound" icon="radio-button-unchecked"></paper-icon-button>
+      <paper-icon-button on-tap="addSquare" icon="image:crop-square"></paper-icon-button>
+      <paper-icon-button on-tap="addText" icon="editor:title"></paper-icon-button>
+      <paper-icon-button on-tap="addLink" icon="icons:link"></paper-icon-button>
+    </div>
 
-    <div id="time_bar" on-tap="movePlayerBar">
+    <div id="time_bar">
       <div id="player_bar" draggable="true" on-drag="updateTime"></div>
-      <template is="dom-repeat" items="{{annotations}}">
-        <annotation-element duration= "{{duration}}" annotation="{{item}}"></annotation-element>
+      <div id = "scroll">
+        <template is="dom-repeat" items="{{annotations}}">
+          <annotation-element annotation_id="{{index}}" on-tap="select_annotation" duration= "{{duration}}" annotation="{{item}}"></annotation-element>
+        </template>
+      </div>
+    </div>
+
+    <div id="info_part">
+        <div>
+          <paper-icon-button  classs="delete" on-tap="delete" icon="icons:delete"></paper-icon-button>
+        </div>
+      <template is="dom-if" if='{{currentAnnotation.isText}}'>
+        <paper-input label="Contenu du texte" 
+        always-float-label 
+        value = "{{textValue}}" type="text"></paper-input>
       </template>
+      <template is="dom-if" if='{{currentAnnotation.isLink}}'>
+        <paper-input label="lien hypertexte" 
+        always-float-label 
+        value = "{{textValue}}" type="text"></paper-input>
+      </template>
+        
+        <div class="colors">
+          <paper-input label="Couleur de remplissage" 
+                always-float-label 
+                value = "{{fillValue}}" type="text"></paper-input>
+          <paper-input label="Couleur des bords" 
+                always-float-label 
+                value = "{{strokeValue}}" type="text"></paper-input>
+        </div>
+        <br>
+        <div class="colors">
+          <span>Taille : <paper-slider value="{{sizeValue}}"></paper-slider></span>
+          <span>x : <paper-slider value="{{xValue}}"></paper-slider></span>
+          <span>y : <paper-slider value="{{yValue}}"></paper-slider></span>
+        </div>
+
     </div>
    
   </template>
@@ -54,10 +120,45 @@ By: Mayl
       is: 'editing-time-bar',
 
       properties: {
+        videoId: {
+          type: String,
+          notify:true,
+          reflectToAttribute: true
+        },
         play: {
           type: Boolean,
           notify:true,
           reflectToAttribute: true
+        },
+        textValue: {
+          type: String, 
+          value : "",
+          observer: "_textValueHasChanged"
+        },
+        fillValue: {
+          type: String, 
+          value : "",
+          observer: "_fillValueHasChanged"
+        },
+        strokeValue: {
+          type: String, 
+          value : "",
+          observer: "_strokeValueHasChanged"
+        },
+        sizeValue: {
+          type: String, 
+          value : "",
+          observer: "_sizeValueHasChanged"
+        },
+        xValue: {
+          type: String, 
+          value : "",
+          observer: "_xValueHasChanged"
+        },
+        yValue: {
+          type: String, 
+          value : "",
+          observer: "_yValueHasChanged"
         },
         currenttime:{
           type: Number,
@@ -74,16 +175,23 @@ By: Mayl
           type: Number,
           notify: true,
           reflectToAttribute: true,
-          observer: "_test",
         },
         annotations:{
           type: Array,
           notify: true,
           reflectToAttribute: true,
+        },
+        currentAnnotation:{
+          type: Object,
+          notify:true,
+          value:{
+            isText: false,
+            isSquare: false,
+            isRound: false,
+            index : 0,
+            isLink: false,
+          }
         }
-      },
-      _test: function(){
-        console.log("duration", this.duration);
       },
       _currenttime_changed: function (before, after){
         var left = (after*100)/(this.duration) + "%";
@@ -97,17 +205,209 @@ By: Mayl
         var size = this.$.time_bar.offsetWidth;
 
         this.foreigntime = (left/size)*this.duration;
-        console.log("foreign time: ", this.foreigntime);
-
       },
       movePlayerBar: function (event){
-        console.log(event.detail.sourceEvent.offsetX);
         var size = this.$.time_bar.offsetWidth;
         this.foreigntime = (event.detail.sourceEvent.offsetX/size)*this.duration;
       },
-      sortAnnotations : function(annotation){
-        console.log(annotation);
-        return annotation;
+      select_annotation : function(event){
+        var that = this;
+        var index = event.model.__data__.index;
+
+        this.currentAnnotation.isText = (this.annotations[index].shape.type =="text");
+        this.currentAnnotation.isRound = (this.annotations[index].shape.type =="round");
+        this.currentAnnotation.isSquare = (this.annotations[index].shape.type =="square");
+        this.currentAnnotation.isLink = (this.annotations[index].shape.type =="link");
+        this.currentAnnotation.index = index;
+        this.notifyPath('currentAnnotation.isText');
+        this.notifyPath('currentAnnotation.isRound');
+        this.notifyPath('currentAnnotation.isSquare');
+        this.notifyPath('currentAnnotation.index');
+        this.notifyPath('currentAnnotation.isLink');
+
+        this.textValue = this.annotations[index].text;
+        this.strokeValue = this.annotations[index].shape.stroke?this.annotations[index].shape.stroke:"#fff";
+        this.fillValue = this.annotations[index].shape.fill?this.annotations[index].shape.fill:"#fff";
+        this.sizeValue = this.annotations[index].shape.size?this.annotations[index].shape.size:"20";
+        this.xValue = this.annotations[index].shape.position_x;
+        this.yValue = this.annotations[index].shape.position_y;
+
+      },
+      _send_modification : function (params){
+        var url = "https://node.edouardg.fr/annotation/"+this.annotations[this.currentAnnotation.index]._id;
+        var http = new XMLHttpRequest();
+        http.open("PUT", url, true);
+        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
+        http.onreadystatechange = function () {
+              if (http.readyState == 4 && http.status == 200) {
+                  //console.log(http.responseText);
+              }else if (http.status == 400){
+                  console.log(http.responseText);
+              }
+          };
+        http.send(params);
+      },
+      _textValueHasChanged : function () {
+        if (this.currentAnnotation && this.currentAnnotation.index != undefined){
+          this.annotations[this.currentAnnotation.index].text = this.textValue;
+          var that = this;
+          var params = JSON.stringify({
+            "text" : that.textValue
+          });
+          this._send_modification(params);
+        }
+      },
+      _fillValueHasChanged : function() {
+        if (this.currentAnnotation && this.currentAnnotation.index != undefined){
+          this.annotations[this.currentAnnotation.index].shape.fill = this.fillValue;
+          var that = this;
+          var shape = this.annotations[this.currentAnnotation.index].shape;
+          var params = JSON.stringify({
+            "shape" : shape
+          });
+          this._send_modification(params);
+
+        }
+      },
+      _strokeValueHasChanged : function() {
+        if (this.currentAnnotation && this.currentAnnotation.index != undefined){
+          this.annotations[this.currentAnnotation.index].shape.stroke = this.strokeValue;
+          var that = this;
+          var shape = this.annotations[this.currentAnnotation.index].shape;
+          var params = JSON.stringify({
+            "shape" : shape
+          });
+          this._send_modification(params);
+        }
+      },
+      _sizeValueHasChanged: function(){
+        if (this.currentAnnotation && this.currentAnnotation.index != undefined){
+          this.annotations[this.currentAnnotation.index].shape.size = this.sizeValue;
+          var that = this;
+          var shape = this.annotations[this.currentAnnotation.index].shape;
+          var params = JSON.stringify({
+            "shape" : shape
+          });
+          this._send_modification(params);
+        }
+      },
+      _yValueHasChanged: function(){
+        if (this.currentAnnotation && this.currentAnnotation.index != undefined){
+          this.annotations[this.currentAnnotation.index].shape.position_y = this.yValue;
+          var that = this;
+          var shape = this.annotations[this.currentAnnotation.index].shape;
+          var params = JSON.stringify({
+            "shape" : shape
+          });
+          this._send_modification(params);
+        }
+      },
+      _xValueHasChanged: function(){
+        if (this.currentAnnotation && this.currentAnnotation.index != undefined){
+          this.annotations[this.currentAnnotation.index].shape.position_x = this.xValue;
+          var that = this;
+          var shape = this.annotations[this.currentAnnotation.index].shape;
+          var params = JSON.stringify({
+            "shape" : shape
+          });
+          this._send_modification(params);
+        }
+      },
+      addRound: function(){
+        var to_send =  JSON.stringify({
+          "video": this.videoId,
+          "time_start": this.currenttime,
+          "time_end": this.currenttime+3,
+          "text": "annotation",
+          "shape": {
+              "type": "round",
+              "position_x": "0",
+              "position_y": "0",
+          }
+        });
+        this._init_annotation(to_send);
+      },
+      addSquare: function(){
+        var to_send =  JSON.stringify({
+          "video": this.videoId,
+          "time_start": this.currenttime,
+          "time_end": this.currenttime+3,
+          "text": "annotation",
+          "shape": {
+              "type": "square",
+              "position_x": "0",
+              "position_y": "0",
+          }
+        });
+        this._init_annotation(to_send);
+      },
+      addText: function(){
+        var to_send =  JSON.stringify({
+          "video": this.videoId,
+          "time_start": this.currenttime,
+          "time_end": this.currenttime+3,
+          "text": "Votre texte",
+          "shape": {
+              "type": "text",
+              "position_x": "0",
+              "position_y": "0",
+          }
+        });
+        this._init_annotation(to_send);
+      },
+      addLink: function(){
+        var to_send =  JSON.stringify({
+          "video": this.videoId,
+          "time_start": this.currenttime,
+          "time_end": this.currenttime+3,
+          "text": "",
+          "shape": {
+              "type": "link",
+              "position_x": "0",
+              "position_y": "0",
+          }
+        });
+        this._init_annotation(to_send);
+      },
+      _init_annotation: function(params){
+        var that = this;
+        var url = "https://node.edouardg.fr/annotation/";
+        var http = new XMLHttpRequest();
+        http.open("POST", url, true);
+        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
+        http.onreadystatechange = function () {
+              if (http.readyState == 4 && http.status == 201) {
+                  that.push("annotations", JSON.parse(http.response));
+                  //that.annotations.push(JSON.parse(http.response));
+                  that.notifyPath('annotations');
+
+              }else if (http.status == 400){
+                  console.log(http.responseText);
+              }
+          };
+        http.send(params);
+      },
+      delete: function(){
+        var that = this;
+        var url = "https://node.edouardg.fr/annotation/"+this.annotations[this.currentAnnotation.index]._id;
+        var http = new XMLHttpRequest();
+        http.open("DELETE", url, true);
+        http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        http.withCredentials = true;
+        http.onreadystatechange = function () {
+              if (http.readyState == 4) {
+
+                  that.splice('annotations', that.currentAnnotation.index, 1);
+                  //that.annotations.push(JSON.parse(http.response));
+                  that.notifyPath('annotations');
+
+              }else if (http.status == 400){
+                  console.log(http.responseText);
+              }
+          };
+        http.send();
       },
 
     });

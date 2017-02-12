@@ -8,11 +8,12 @@
 <link rel="import" href="../components/video-display.html">
 <link rel="import" href="../components/editing-time-bar.html">
 <link rel="import" href="./shared-styles.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 
 
 <dom-module id="annotube-edit">
     <template>
-        <style include="shared-styles">
+        <style include="shared-styles" is="custom-style">
             :host {
                 display: block;
             }
@@ -59,10 +60,19 @@
             .editing_part{
               margin-top: 20px 
             }
+            paper-input{
+              --paper-input-container-input : {
+                font-size:33px;
+                color:darkred;
+              };
+            }
         </style>
 
         <div class="card pd16">
-            <h1>[[videoName]]</h1>
+            <paper-input label="titre de la video" 
+            always-float-label 
+            value = "{{videoName}}" type="text">
+            </paper-input> 
             <div class="playing_aera">
                 <div class="video_part">
                   <video-display class="video" 
@@ -92,7 +102,8 @@
               play="{{play}}" 
               duration="{{duration}}" 
               class="editing_toolbar" 
-              annotations="{{annotations}}"></editing-time-bar>
+              annotations="{{annotations}}"
+              video-id = "{{videoId}}"></editing-time-bar>
             </div>
 
         </div>
@@ -109,10 +120,19 @@
                     notify: true,
                     reflectToAttribute: true
                 },
+                videoName: {
+                  type:String,
+                  notify: true,
+                  observer: "_titleHasChanged"
+                },
                 currenttime:{
                   type: Number,
                   notify: true,
                   observer: "_timeChanged"
+                },
+                currentLink:{
+                  type: String,
+                  notify: true,
                 },
                 duration:{
                   type: Number,
@@ -160,16 +180,44 @@
             },
             _timeChanged: function (){
                 if (this.annotations){
+                    var found = false;
                     for (var i = 0; i < this.annotations.length; i++){
                         if (this.annotations[i].shape.type=="link"){
-                            if (this.annotations[i].time_start <= this.currenttime ||
-                                this.annotations[i].time_end >= this.currenttime){
+                            if ((this.annotations[i].time_start < this.currenttime ) &&
+                                (this.annotations[i].time_end > this.currenttime)){
                                 this.currentLink = this.annotations[i].text;
+                            found = true;
                             }
                         }
                     }
+                    if (!found){
+                        this.currentLink = "";
+                    }
                 }
                 
+            },
+             _titleHasChanged: function(){
+              if (this.videoName){
+
+                console.log("changed");
+                var that = this;
+                var url = "https://node.edouardg.fr/video/"+this.videoId;
+                var http = new XMLHttpRequest();
+                http.open("PUT", url, true);
+                http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                http.withCredentials = true;
+                var params =  JSON.stringify({
+                  "name": this.videoName,
+                });
+                http.onreadystatechange = function () {
+                      if (http.readyState == 4 && http.status == 201) {
+                        console.log(http.responseText)
+                      }else if (http.status == 400){
+                          console.log(http.responseText);
+                      }
+                  };
+                http.send(params);
+              }
             },
             goToLink: function(){
                 window.open(this.currentLink,'_blank');

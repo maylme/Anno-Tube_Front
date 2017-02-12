@@ -194,13 +194,18 @@
             },
             _timeChanged: function (){
                 if (this.annotations){
+                    var found = false;
                     for (var i = 0; i < this.annotations.length; i++){
                         if (this.annotations[i].shape.type=="link"){
-                            if (this.annotations[i].time_start <= this.currenttime ||
-                                this.annotations[i].time_end >= this.currenttime){
+                            if ((this.annotations[i].time_start < this.currenttime ) &&
+                                (this.annotations[i].time_end > this.currenttime)){
                                 this.currentLink = this.annotations[i].text;
+                            found = true;
                             }
                         }
+                    }
+                    if (!found){
+                        this.currentLink = "";
                     }
                 }
                 
