@@ -17,10 +17,12 @@
             :host {
                 display: block;
             }
+            
             video-display {
                 position: relative;
                 width: 100%;
             }
+            
             .playing_aera {
                 width: 100%;
                 display: inline-flex;
@@ -28,12 +30,14 @@
                 border-bottom: dashed 1px lightgrey;
                 position: relative;
             }
+            
             .video_part {
                 width: 60%;
                 display: inline-block;
                 margin: 0;
                 padding: 0;
             }
+            
             .link_part {
                 width: 40%;
                 margin: 0;
@@ -44,8 +48,7 @@
             .link_part iron-icon {
                 --iron-icon-height: 32px;
                 --iron-icon-width: 32px;
-                cursor:pointer;
-
+                cursor: pointer;
                 --iron-icon: {
                     position: absolute;
                     top: -22px;
@@ -54,59 +57,49 @@
                     padding: 10px;
                     border-radius: 50%;
                     color: white;
-                    transform:rotate(45deg);
+                    transform: rotate(45deg);
                 }
             }
-            .editing_part{
-              margin-top: 20px 
+            
+            .editing_part {
+                margin-top: 20px
             }
-            paper-input{
-              --paper-input-container-input : {
-                font-size:33px;
-                color:darkred;
-              };
+            
+            paper-input {
+                --paper-input-container-input: {
+                    font-size: 33px;
+                    color: darkred;
+                }
+                ;
             }
         </style>
 
-        <div class="card pd16">
-            <paper-input label="titre de la video" 
-            always-float-label 
-            value = "{{videoName}}" type="text">
-            </paper-input> 
-            <div class="playing_aera">
-                <div class="video_part">
-                  <video-display class="video" 
-                    video-id="{{youtubeId}}" 
-                    annotations="{{annotations}}"
-                    play="{{play}}" 
-                    duration= "{{duration}}" 
-                    currenttime="{{currenttime}}"
-                    foreigntime="{{foreigntime}}"
-                    annotations="{{annotations}}"
-                    ></video-display>
-                </div>
-                <div class="link_part">
-                    <iframe src ="{{currentLink}}" width="100%" height="100%">
-                      <p>Your browser does not support iframes.</p>
-                    </iframe>
-                    <template is="dom-if" if="{{currentLink}} ">
-                        <iron-icon on-tap="goToLink" icon="icons:link"></iron-icon>
-                    </template>
+        <iron-ajax auto id="ajax" url="https://node.edouardg.fr/video/[[videoId]]" handle-as="json" debounce-duration="300" with-credentials="true"
+            on-response="serverResponse" on-error="serverError"></iron-ajax>
+            <div class="card pd16">
+                <paper-input label="titre de la video" always-float-label value="{{videoName}}" type="text">
+                </paper-input>
+                <div class="playing_aera">
+                    <div class="video_part">
+                        <video-display class="video" video-id="{{youtubeId}}" annotations="{{annotations}}" play="{{play}}" duration="{{duration}}"
+                            currenttime="{{currenttime}}" foreigntime="{{foreigntime}}" annotations="{{annotations}}"></video-display>
+                    </div>
+                    <div class="link_part">
+                        <iframe src="{{currentLink}}" width="100%" height="100%">
+                            <p>Your browser does not support iframes.</p>
+                        </iframe>
+                        <template is="dom-if" if="{{currentLink}} ">
+                            <iron-icon on-tap="goToLink" icon="icons:link"></iron-icon>
+                        </template>
 
+                    </div>
                 </div>
-            </div>
-            <div class="editing_part">
-              <editing-time-bar 
-              currenttime="{{currenttime}}" 
-              foreigntime="{{foreigntime}}" 
-              play="{{play}}" 
-              duration="{{duration}}" 
-              class="editing_toolbar" 
-              annotations="{{annotations}}"
-              video-id = "{{videoId}}"></editing-time-bar>
-            </div>
+                <div class="editing_part">
+                    <editing-time-bar currenttime="{{currenttime}}" foreigntime="{{foreigntime}}" play="{{play}}" duration="{{duration}}" class="editing_toolbar"
+                        annotations="{{annotations}}" video-id="{{videoId}}"></editing-time-bar>
+                </div>
 
-        </div>
+            </div>
 
     </template>
 
@@ -121,106 +114,89 @@
                     reflectToAttribute: true
                 },
                 videoName: {
-                  type:String,
-                  notify: true,
-                  observer: "_titleHasChanged"
+                    type: String,
+                    notify: true,
+                    observer: "_titleHasChanged"
                 },
-                currenttime:{
-                  type: Number,
-                  notify: true,
-                  observer: "_timeChanged"
+                currenttime: {
+                    type: Number,
+                    notify: true,
+                    observer: "_timeChanged"
                 },
-                currentLink:{
-                  type: String,
-                  notify: true,
+                currentLink: {
+                    type: String,
+                    notify: true,
                 },
-                duration:{
-                  type: Number,
-                  notify: true
+                duration: {
+                    type: Number,
+                    notify: true
                 },
-                annotations:{
-                  type: Array,
-                  notify:true,
+                annotations: {
+                    type: Array,
+                    notify: true,
                 }
             },
-            ready: function () {
-              var that = this;
-              var url = "https://node.edouardg.fr/video/" + this.videoId;
 
-              var http = new XMLHttpRequest();
-              http.open("GET", url, true);
-              http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-              http.withCredentials = true;
-              http.send();
-
-              http.onreadystatechange = function () {
-                if (http.readyState == 4) {
-                  if (http.status == 200) {
-
-                    var res = JSON.parse(http.response);
-                    console.log("coco video", res);
-                    that.youtubeId = res.youtube;
-                    that.videoName = res.name;
-                    that.author = res.author;
-                    that.annotations = res.annotations;
-                    that.comments = res.comments;
-                    that.thumbnail = res.thunbmail;
-                    that.likes;
-                    that.likeId;
-
-                  } else if (http.status == 400) {
-                    alert(JSON.parse(http.responseText).message);
-                  } else if (http.status == 500) {
-                    console.log("The server has encountered a situation it doesn 't know how to handle.");
-                  } else if (http.status == 401) {
-                    document.location = "/forbidden";
-                  }
-                }
-              }
-            },
-            _timeChanged: function (){
-                if (this.annotations){
+            _timeChanged: function () {
+                if (this.annotations) {
                     var found = false;
-                    for (var i = 0; i < this.annotations.length; i++){
-                        if (this.annotations[i].shape.type=="link"){
-                            if ((this.annotations[i].time_start < this.currenttime ) &&
-                                (this.annotations[i].time_end > this.currenttime)){
+                    for (var i = 0; i < this.annotations.length; i++) {
+                        if (this.annotations[i].shape.type == "link") {
+                            if ((this.annotations[i].time_start < this.currenttime) &&
+                                (this.annotations[i].time_end > this.currenttime)) {
                                 this.currentLink = this.annotations[i].text;
-                            found = true;
+                                found = true;
                             }
                         }
                     }
-                    if (!found){
+                    if (!found) {
                         this.currentLink = "";
                     }
                 }
-                
-            },
-             _titleHasChanged: function(){
-              if (this.videoName){
 
-                console.log("changed");
-                var that = this;
-                var url = "https://node.edouardg.fr/video/"+this.videoId;
-                var http = new XMLHttpRequest();
-                http.open("PUT", url, true);
-                http.setRequestHeader("Content-type", "application/json; charset=utf-8");
-                http.withCredentials = true;
-                var params =  JSON.stringify({
-                  "name": this.videoName,
-                });
-                http.onreadystatechange = function () {
-                      if (http.readyState == 4 && http.status == 201) {
-                        console.log(http.responseText)
-                      }else if (http.status == 400){
-                          console.log(http.responseText);
-                      }
-                  };
-                http.send(params);
-              }
             },
-            goToLink: function(){
-                window.open(this.currentLink,'_blank');
+            _titleHasChanged: function () {
+                if (this.videoName) {
+                    console.log("changed");
+                    var that = this;
+                    var url = "https://node.edouardg.fr/video/" + this.videoId;
+                    var http = new XMLHttpRequest();
+                    http.open("PUT", url, true);
+                    http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                    http.withCredentials = true;
+                    var params = JSON.stringify({
+                        "name": this.videoName,
+                    });
+                    http.onreadystatechange = function () {
+                        if (http.readyState == 4 && http.status == 201) {
+                            console.log(http.responseText)
+                        } else if (http.status == 400) {
+                            console.log(http.responseText);
+                        }
+                    };
+                    http.send(params);
+                }
+            },
+            goToLink: function () {
+                window.open(this.currentLink, '_blank');
+            },
+            serverResponse: function (event, request) {
+                var res = request.response;
+                this.youtubeId = res.youtube;
+                this.videoName = res.name;
+                this.author = res.author;
+                this.annotations = res.annotations;
+                this.comments = res.comments;
+                this.thumbnail = res.thunbmail;
+                this.likes;
+                this.likeId;
+            },
+            serverError: function (event) {
+                if (event.detail.request.xhr.status == 401) {
+                    document.location = "/forbidden";
+                } else {
+                    alert(event.detail.request.xhr.response.message);
+                }
             }
         });
     </script>
