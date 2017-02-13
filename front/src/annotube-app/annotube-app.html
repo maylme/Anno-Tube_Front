@@ -134,7 +134,7 @@ Entry point of the app, containt routing
         }
 
         // to disable the video if we're watching one and we go to another page
-        if (oldPage == "video") {
+        if (oldPage == "video" || oldPage == "edit") {
           console.log($('#video')[0].pause());
         }
 
